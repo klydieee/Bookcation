@@ -35,7 +35,9 @@ interface DownloadCard {
 }
 
 const GITHUB_RELEASES = "https://github.com/klydieee/Bookcation/releases";
-const RELEASE_BASE = `${GITHUB_RELEASES}/latest/download`;
+// Pinned to the exact release tag so URLs are stable and work immediately.
+const RELEASE_BASE =
+  "https://github.com/klydieee/Bookcation/releases/download/v0.1.0";
 
 const CARDS: DownloadCard[] = [
   {
@@ -66,7 +68,7 @@ const CARDS: DownloadCard[] = [
     version: "0.1.0",
     size: "3.8 MB",
     primaryLabel: "Download APK",
-    href: `${RELEASE_BASE}/Bookcation_0.1.0_debug.apk`,
+    href: `${RELEASE_BASE}/app-debug.apk`,
   },
   {
     icon: LinuxLogo,
