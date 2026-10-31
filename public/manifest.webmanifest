@@ -1,0 +1,17 @@
+{
+  "name": "Bookcation",
+  "short_name": "Bookcation",
+  "description": "Flights, food, and catering on one trip plan.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F4F6FB",
+  "theme_color": "#2F3DF5",
+  "icons": [
+    {
+      "src": "/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

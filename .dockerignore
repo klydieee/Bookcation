@@ -1,0 +1,13 @@
+# Keep host-built artifacts out of the Linux build context.
+node_modules
+dist
+src-tauri/target
+src-tauri/gen/schemas
+android
+ios
+.git
+.vite
+*.local
+.DS_Store
+# large generated stuff
+**/build/outputs

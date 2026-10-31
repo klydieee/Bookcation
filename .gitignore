@@ -1,0 +1,23 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+.vite
+
+# Rust / Tauri build output
+src-tauri/target
+src-tauri/gen/schemas
+
+# Capacitor / native build output
+android/.gradle
+android/app/build
+android/build
+android/local.properties
+android/app/src/main/assets/public
+android/capacitor-cordova-android-plugins
+ios/App/build
+ios/App/Pods
+ios/App/App/public
+ios/capacitor-cordova-ios-plugins
+DerivedData

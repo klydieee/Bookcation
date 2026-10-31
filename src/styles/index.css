@@ -1,0 +1,642 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+@import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/atkinson-hyperlegible-next";
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  .dark {
+    color-scheme: dark;
+  }
+
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    font-family: var(--font-sans);
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Visible focus on every interactive element (§12) */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Tabular figures for prices and times */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .font-sans {
+    font-family: var(--font-sans);
+  }
+
+  /* Type scale (§3) */
+  .text-display-xl {
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 1.4rem + 5.6vw, 5.75rem);
+    line-height: 0.96;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    font-stretch: 88%;
+  }
+  .text-display-lg {
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 1.4rem + 3.4vw, 3.75rem);
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+  .text-h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 2.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .text-h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  .text-h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+  }
+  .text-h4 {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 700;
+  }
+  .text-body-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+  .text-body-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  .text-caption {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 500;
+  }
+  .num-xl {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 2.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .num-lg {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    line-height: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    font-variant-numeric: tabular-nums;
+  }
+  .num-md {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Elevation (§5), ink-tinted */
+  .shadow-1 {
+    box-shadow: 0 1px 2px rgb(15 26 54 / 0.06);
+  }
+  .shadow-2 {
+    box-shadow: 0 6px 16px -4px rgb(15 26 54 / 0.12);
+  }
+  .shadow-3 {
+    box-shadow: 0 16px 36px -10px rgb(15 26 54 / 0.2);
+  }
+  .shadow-4 {
+    box-shadow: 0 28px 72px -16px rgb(15 26 54 / 0.32);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 120ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Motion: disciplined interactivity (03 §6). Everything here degrades */
+/* to a quiet 120ms opacity change (or nothing) under reduced motion.  */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  /* Hover lift for interactive surfaces (tickets, tiles, cards that are
+     links/buttons). Answers a pointer, not a scroll. */
+  .lift {
+    transition:
+      transform var(--dur-fast) var(--ease-standard),
+      box-shadow var(--dur-fast) var(--ease-standard),
+      filter var(--dur-fast) var(--ease-standard);
+    will-change: transform;
+  }
+  .lift:hover {
+    transform: translateY(-3px);
+  }
+  .lift:active {
+    transform: translateY(-1px) scale(0.995);
+  }
+
+  /* Press feedback (03 §6: scale 0.98 on pointer down). */
+  .press {
+    transition: transform var(--dur-instant) var(--ease-standard);
+  }
+  .press:active {
+    transform: scale(0.98);
+  }
+
+  /* Soft tint sweep on nav items / list rows. */
+  .hover-tint {
+    transition: background-color var(--dur-fast) var(--ease-standard);
+  }
+
+  /* Underline that grows from the start edge on hover (links). */
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size var(--dur-base) var(--ease-out-quint);
+  }
+  .link-underline:hover {
+    background-size: 100% 2px;
+  }
+
+  /* Reveal-on-view (used sparingly; staggered groups only). */
+  .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  .reveal[data-shown="true"] {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--dur-slow) var(--ease-out-quint),
+      transform var(--dur-slow) var(--ease-out-quint);
+  }
+
+  /* Collapsible panels (accordion, compare, create trip): grid-rows trick
+     animates height without a fixed pixel value. */
+  .collapsible {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--dur-base) var(--ease-standard);
+  }
+  .collapsible[data-open="true"] {
+    grid-template-rows: 1fr;
+  }
+  .collapsible > .collapsible-inner {
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* Enter animations for sheets/popovers/banners (opacity + 8px translate). */
+  .enter-up {
+    animation: enter-up var(--dur-base) var(--ease-standard) both;
+  }
+  .enter-fade {
+    animation: enter-fade var(--dur-base) var(--ease-standard) both;
+  }
+  .caret-spin {
+    transition: transform var(--dur-base) var(--ease-standard);
+  }
+}
+
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes enter-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Hero sequence (03 §6: plays once on load). */
+@keyframes hero-ticket-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.hero-ticket {
+  animation: hero-ticket-in var(--dur-hero) var(--ease-out-quint) both;
+}
+
+/* Dashed route arc draw. */
+@keyframes route-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.route-draw {
+  stroke-dasharray: 240;
+  stroke-dashoffset: 240;
+  animation: route-draw var(--dur-slow) var(--ease-out-quint) both;
+}
+
+/* When reduced motion is requested, strip transforms and the hero/route
+   choreography; keep a minimal fade so state changes are still legible. */
+@media (prefers-reduced-motion: reduce) {
+  .lift,
+  .press,
+  .lift:hover,
+  .lift:active,
+  .press:active {
+    transform: none !important;
+    transition: none !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .hero-ticket,
+  .route-draw,
+  .enter-up,
+  .enter-fade {
+    animation: none !important;
+  }
+  .route-draw {
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+/* App-level "Reduce motion = on" sets this class on <html> (03 §6 Settings). */
+.reduce-motion .lift,
+.reduce-motion .press,
+.reduce-motion .lift:hover,
+.reduce-motion .lift:active,
+.reduce-motion .press:active {
+  transform: none !important;
+  transition: none !important;
+}
+.reduce-motion .reveal {
+  opacity: 1 !important;
+  transform: none !important;
+}
+.reduce-motion .hero-ticket,
+.reduce-motion .route-draw,
+.reduce-motion .enter-up,
+.reduce-motion .enter-fade {
+  animation: none !important;
+}
+.reduce-motion .route-draw {
+  stroke-dashoffset: 0 !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Fluent-style surfaces and lighting effects. Cursor position is fed  */
+/* in via --mx / --my (px, element-relative) and --mxp / --myp (%).    */
+/* All of this is decorative and degrades under reduced motion.        */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  /* Acrylic: translucent blurred surface (Fluent Acrylic). */
+  .acrylic {
+    background-color: color-mix(in srgb, var(--color-surface) 72%, transparent);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid color-mix(in srgb, var(--color-line) 70%, transparent);
+  }
+  @supports not (backdrop-filter: blur(1px)) {
+    .acrylic {
+      background-color: var(--color-surface);
+    }
+  }
+
+  /* Mica: subtle, near-opaque surface faintly tinted by the primary hue,
+     evoking a wallpaper-tinted material. */
+  .mica {
+    position: relative;
+    background-color: var(--color-surface);
+    background-image: radial-gradient(
+        120% 140% at 0% 0%,
+        color-mix(in srgb, var(--color-primary) 10%, transparent),
+        transparent 55%
+      ),
+      radial-gradient(
+        120% 140% at 100% 0%,
+        color-mix(in srgb, var(--color-trip) 9%, transparent),
+        transparent 50%
+      );
+  }
+
+  /* Rounded geometry (Windows 11 style corners). */
+  .geo {
+    border-radius: var(--radius-lg);
+  }
+  .geo-md {
+    border-radius: var(--radius-md);
+  }
+
+  /* Drop shadow / depth helpers (ink-tinted, tiered). */
+  .depth-2 {
+    box-shadow: 0 6px 16px -4px rgb(15 26 54 / 0.12);
+  }
+  .depth-3 {
+    box-shadow: 0 16px 36px -10px rgb(15 26 54 / 0.2);
+  }
+  .depth-4 {
+    box-shadow: 0 28px 72px -16px rgb(15 26 54 / 0.32);
+  }
+
+  /* Spotlight: a soft radial light follows the cursor over the element. */
+  .spotlight {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .spotlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      320px circle at var(--mx, 50%) var(--my, 50%),
+      color-mix(in srgb, var(--color-primary) 22%, transparent),
+      transparent 60%
+    );
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-standard);
+  }
+  .spotlight:hover::before {
+    opacity: 1;
+  }
+
+  /* Reveal highlight: an illuminated border ring that brightens near the
+     cursor (Fluent Reveal). Uses a masked gradient border. */
+  .reveal-border {
+    position: relative;
+  }
+  .reveal-border::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: radial-gradient(
+      180px circle at var(--mx, 50%) var(--my, 50%),
+      color-mix(in srgb, var(--color-primary-ink) 85%, transparent),
+      transparent 65%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-standard);
+    pointer-events: none;
+  }
+  .reveal-border:hover::after {
+    opacity: 1;
+  }
+
+  /* Glow border: a persistent soft colored halo on the edge. */
+  .glow {
+    position: relative;
+  }
+  .glow::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-primary) 60%, transparent),
+      color-mix(in srgb, var(--color-trip) 50%, transparent)
+    );
+    filter: blur(14px);
+    opacity: 0.35;
+    z-index: -1;
+    transition: opacity var(--dur-base) var(--ease-standard);
+  }
+  .glow:hover::after {
+    opacity: 0.6;
+  }
+
+  /* Button sheen: a diagonal light sweep on hover. */
+  .sheen {
+    position: relative;
+    overflow: hidden;
+  }
+  .sheen::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    height: 100%;
+    width: 60%;
+    background: linear-gradient(
+      100deg,
+      transparent,
+      rgb(255 255 255 / 0.35),
+      transparent
+    );
+    transform: skewX(-18deg);
+    transition: left var(--dur-slow) var(--ease-out-quint);
+    pointer-events: none;
+  }
+  .sheen:hover::before {
+    left: 130%;
+  }
+
+  /* Ripple seed (JS sets --rx/--ry and toggles data-ripple). */
+  .ripple {
+    position: relative;
+    overflow: hidden;
+  }
+  .ripple::after {
+    content: "";
+    position: absolute;
+    left: var(--rx, 50%);
+    top: var(--ry, 50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: none;
+  }
+  .ripple[data-ripple="on"]::after {
+    animation: ripple-out var(--dur-slow) var(--ease-out-quint);
+  }
+
+  /* Shimmer skeleton for loading placeholders. */
+  .shimmer {
+    background: linear-gradient(
+      100deg,
+      var(--color-sunken) 30%,
+      color-mix(in srgb, var(--color-sunken) 60%, var(--color-surface)) 50%,
+      var(--color-sunken) 70%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+}
+
+@keyframes ripple-out {
+  from {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(42);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.float {
+  animation: float-slow 6s var(--ease-standard) infinite;
+}
+
+/* Reduced motion strips the cursor lighting transitions, the sheen sweep,
+   ripples, float, and shimmer movement. */
+@media (prefers-reduced-motion: reduce) {
+  .spotlight::before,
+  .reveal-border::after,
+  .glow::after,
+  .sheen::before {
+    transition: none !important;
+  }
+  .ripple[data-ripple="on"]::after,
+  .shimmer,
+  .float {
+    animation: none !important;
+  }
+}
+.reduce-motion .spotlight::before,
+.reduce-motion .reveal-border::after,
+.reduce-motion .glow::after,
+.reduce-motion .sheen::before {
+  transition: none !important;
+}
+.reduce-motion .ripple[data-ripple="on"]::after,
+.reduce-motion .shimmer,
+.reduce-motion .float {
+  animation: none !important;
+}
+
+/* Theme switch: ease color properties only (03 §11). A transient class is
+   added to <html> during the switch so steady-state interactions aren't
+   globally transitioned. Disabled under reduced motion. */
+.theme-anim,
+.theme-anim *::before,
+.theme-anim *::after,
+.theme-anim * {
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    fill var(--dur-fast) var(--ease-standard),
+    stroke var(--dur-fast) var(--ease-standard) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-anim,
+  .theme-anim *::before,
+  .theme-anim *::after,
+  .theme-anim * {
+    transition: none !important;
+  }
+}
+.reduce-motion.theme-anim,
+.reduce-motion.theme-anim *::before,
+.reduce-motion.theme-anim *::after,
+.reduce-motion.theme-anim * {
+  transition: none !important;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 0.8s linear infinite;
+}

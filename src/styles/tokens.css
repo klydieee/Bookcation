@@ -1,0 +1,124 @@
+@theme {
+  /* ---- Light theme colors (03_DESIGN_SYSTEM §2.1) ---- */
+  --color-canvas: #f4f6fb;
+  --color-surface: #ffffff;
+  --color-raised: #ffffff;
+  --color-sunken: #e8ecf6;
+  --color-ink: #0f1a36;
+  --color-ink-muted: #4a5573;
+  --color-line: #d3d9e9;
+  --color-line-strong: #76819c;
+
+  --color-primary: #2f3df5;
+  --color-primary-ink: #2f3df5;
+  --color-primary-hover: #2330d1;
+  --color-primary-tint: #e8eafe;
+  --color-on-primary: #ffffff;
+
+  /* module accents */
+  --color-flight: #2f3df5;
+  --color-flight-tint: #e8eafe;
+  --color-flight-ink: #2f3df5;
+
+  --color-food: #ff5c7a;
+  --color-food-tint: #ffe8ec;
+  --color-food-ink: #b8213f;
+
+  --color-catering: #ffb020;
+  --color-catering-tint: #fff1d1;
+  --color-catering-ink: #7a4d00;
+
+  --color-trip: #14b8a6;
+  --color-trip-tint: #daf5f1;
+  --color-trip-ink: #0b6f65;
+
+  /* Stays (Orchid) — reserved extension module (01 §7) */
+  --color-stay: #8b5cf6;
+  --color-stay-tint: #ece7fe;
+  --color-stay-ink: #6025d9;
+
+  --color-on-accent: #0f1a36;
+
+  --color-success: #166b3f;
+  --color-success-tint: #ddf3e7;
+  --color-warning: #8a5300;
+  --color-warning-tint: #fff1d6;
+  --color-error: #c62828;
+  --color-error-tint: #fde7e7;
+
+  --color-focus: #2f3df5;
+  --color-scrim: rgb(15 26 54 / 0.48);
+
+  /* ---- Radii (§5) ---- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-pill: 9999px;
+  --notch: 10px;
+
+  /* ---- Motion (§6) ---- */
+  --dur-instant: 100ms;
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-slow: 400ms;
+  --dur-hero: 900ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ---- Fonts (§3) ---- */
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---- Dark theme (§2.2): deep navy, not neutral black ---- */
+.dark {
+  --color-canvas: #0d1330;
+  --color-surface: #151c42;
+  --color-raised: #1d2655;
+  --color-sunken: #0a0f26;
+  --color-ink: #eaeeff;
+  --color-ink-muted: #a3aeda;
+  --color-line: #2d3870;
+  --color-line-strong: #7280c4;
+
+  --color-primary: #4552f0;
+  --color-primary-ink: #7c88ff;
+  --color-primary-hover: #3a46e6;
+  --color-primary-tint: #1a2260;
+  --color-on-primary: #ffffff;
+
+  --color-flight: #4552f0;
+  --color-flight-tint: #1a2260;
+  --color-flight-ink: #7c88ff;
+
+  --color-food: #ff8097;
+  --color-food-tint: #431a2e;
+  --color-food-ink: #ff8097;
+
+  --color-catering: #ffc247;
+  --color-catering-tint: #3f3010;
+  --color-catering-ink: #ffc247;
+
+  --color-trip: #3dd6c4;
+  --color-trip-tint: #0f3a3d;
+  --color-trip-ink: #3dd6c4;
+
+  --color-stay: #b49bff;
+  --color-stay-tint: #2a2060;
+  --color-stay-ink: #c4b3ff;
+
+  --color-on-accent: #0d1330;
+
+  --color-success: #4fd08a;
+  --color-success-tint: #0f3323;
+  --color-warning: #ffc247;
+  --color-warning-tint: #3f3010;
+  --color-error: #ff8a80;
+  --color-error-tint: #3f1a1c;
+
+  --color-focus: #9aa4ff;
+  --color-scrim: rgb(5 8 22 / 0.64);
+}
