@@ -2,10 +2,12 @@ import { Link } from "react-router-dom";
 import {
   AndroidLogo,
   AppleLogo,
+  ArrowSquareOut,
   CheckCircle,
   Clock,
   DeviceMobile,
   Globe,
+  GithubLogo,
   LinuxLogo,
   WindowsLogo,
 } from "@phosphor-icons/react";
@@ -15,7 +17,7 @@ import { DownloadButton } from "@/components/ui/DownloadButton";
 import { Surface } from "@/components/motion/Fluent";
 import { Reveal } from "@/components/motion/Reveal";
 
-type Status = "available" | "browser" | "soon";
+type Status = "available" | "browser" | "building" | "soon";
 
 interface DownloadCard {
   icon: Icon;
@@ -25,40 +27,33 @@ interface DownloadCard {
   version?: string;
   size?: string;
   primaryLabel: string;
-  secondaryLabel?: string;
   href?: string;
-  filename?: string;
+  secondaryLabel?: string;
   secondaryHref?: string;
-  secondaryFilename?: string;
   to?: string;
   unavailableReason?: string;
 }
 
-// Real artifacts are produced by the CI release workflow and attached to the
-// GitHub release. The hrefs below point to the current release assets.
-// Update RELEASE_BASE when a new release is tagged.
-const RELEASE_BASE =
-  "https://github.com/klydieee/Bookcation/releases/latest/download";
+const GITHUB_RELEASES = "https://github.com/klydieee/Bookcation/releases";
+const RELEASE_BASE = `${GITHUB_RELEASES}/latest/download`;
 
 const CARDS: DownloadCard[] = [
   {
     icon: WindowsLogo,
     heading: "Windows",
-    detail: "Windows 10 or later. 64-bit installer.",
+    detail: "Windows 10 or later. 64-bit. NSIS installer or MSI package.",
     status: "available",
     version: "0.1.0",
     size: "2.1 MB",
     primaryLabel: "Download installer (.exe)",
     href: `${RELEASE_BASE}/Bookcation_0.1.0_x64-setup.exe`,
-    filename: "Bookcation_0.1.0_x64-setup.exe",
-    secondaryLabel: "Download .msi",
+    secondaryLabel: "Download .msi instead",
     secondaryHref: `${RELEASE_BASE}/Bookcation_0.1.0_x64_en-US.msi`,
-    secondaryFilename: "Bookcation_0.1.0_x64_en-US.msi",
   },
   {
     icon: Globe,
     heading: "Browser",
-    detail: "Works in any current browser and installs as a PWA.",
+    detail: "Works in any current browser. Install as a PWA from the address bar.",
     status: "browser",
     primaryLabel: "Open Bookcation",
     to: "/app/trips",
@@ -66,30 +61,28 @@ const CARDS: DownloadCard[] = [
   {
     icon: AndroidLogo,
     heading: "Android",
-    detail: "Direct APK install. Enable installs from your browser when asked.",
+    detail: "Direct APK sideload. Allow installs from your browser when prompted.",
     status: "available",
     version: "0.1.0",
     size: "3.8 MB",
     primaryLabel: "Download APK",
     href: `${RELEASE_BASE}/Bookcation_0.1.0_debug.apk`,
-    filename: "Bookcation_0.1.0_debug.apk",
-  },
-  {
-    icon: AppleLogo,
-    heading: "Mac",
-    detail: "macOS 13 or later. Apple silicon and Intel (universal).",
-    status: "soon",
-    primaryLabel: "Download for macOS",
-    unavailableReason: "macOS build requires a Mac runner. Available via CI.",
   },
   {
     icon: LinuxLogo,
     heading: "Linux",
     detail: "AppImage (all distros) and .deb (Debian / Ubuntu).",
-    status: "soon",
+    status: "building",
     primaryLabel: "Download for Linux",
-    unavailableReason:
-      "Linux build is configured. Available once CI publishes a release.",
+    unavailableReason: "Linux build is running in CI. Check the releases page.",
+  },
+  {
+    icon: AppleLogo,
+    heading: "Mac",
+    detail: "macOS 13 or later. Apple silicon and Intel universal binary.",
+    status: "building",
+    primaryLabel: "Download for macOS",
+    unavailableReason: "macOS build is running in CI. Check the releases page.",
   },
   {
     icon: DeviceMobile,
@@ -97,7 +90,7 @@ const CARDS: DownloadCard[] = [
     detail: "iOS 16 or later. TestFlight beta.",
     status: "soon",
     primaryLabel: "Join TestFlight",
-    unavailableReason: "iOS build requires macOS and Apple signing credentials.",
+    unavailableReason: "Needs Apple signing credentials before it can ship.",
   },
 ];
 
@@ -111,15 +104,38 @@ export function DownloadPage() {
       </p>
 
       {/* Status legend */}
-      <div className="mt-6 flex flex-wrap gap-4 text-[0.875rem]">
+      <div className="mt-6 flex flex-wrap gap-5 text-[0.875rem]">
         <span className="flex items-center gap-1.5 text-[var(--color-success)]">
           <CheckCircle size={16} weight="fill" />
-          Available now
+          Ready to download
+        </span>
+        <span className="flex items-center gap-1.5 text-[var(--color-catering-ink)]">
+          <Clock size={16} weight="fill" />
+          CI building now
         </span>
         <span className="flex items-center gap-1.5 text-[var(--color-ink-muted)]">
-          <Clock size={16} weight="fill" />
+          <Clock size={16} weight="bold" />
           Coming soon
         </span>
+      </div>
+
+      {/* CI notice */}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[var(--color-sunken)] px-5 py-4">
+        <p className="text-[0.875rem] text-[var(--color-ink-muted)]">
+          The <strong className="text-[var(--color-ink)]">v0.1.0</strong> CI run
+          is building macOS and Linux artifacts right now. Windows and Android
+          are already attached to the release.
+        </p>
+        <a
+          href={GITHUB_RELEASES}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex shrink-0 items-center gap-1.5 text-[0.875rem] font-semibold text-[var(--color-primary-ink)] hover:underline"
+        >
+          <GithubLogo size={16} weight="bold" />
+          View all releases
+          <ArrowSquareOut size={14} />
+        </a>
       </div>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -130,28 +146,33 @@ export function DownloadPage() {
         ))}
       </div>
 
+      {/* Build info */}
       <div className="mt-10 rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[var(--color-sunken)] p-5 text-[0.875rem] text-[var(--color-ink-muted)]">
         <p className="font-semibold text-[var(--color-ink)]">About these builds</p>
-        <ul className="mt-2 flex flex-col gap-1.5 list-disc list-inside">
+        <ul className="mt-2 list-inside list-disc flex flex-col gap-1.5">
           <li>
-            Windows and Android installers are built and attached to the{" "}
+            All builds are demo mode: sample data, simulated bookings, nothing is charged.
+          </li>
+          <li>
+            Windows and Android are built natively; macOS and Linux build via
+            GitHub Actions on tagged releases.
+          </li>
+          <li>
+            iOS needs an Apple Developer account and signing credentials — not yet
+            configured.
+          </li>
+          <li>
+            If a download button shows a browser error, the artifact may still be
+            building.{" "}
             <a
-              href="https://github.com/klydieee/Bookcation/releases"
+              href={GITHUB_RELEASES}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[var(--color-primary-ink)] underline"
+              className="text-[var(--color-primary-ink)] underline underline-offset-2"
             >
-              GitHub release
-            </a>
-            .
-          </li>
-          <li>
-            macOS, Linux, and iOS builds are produced by the CI workflow on a
-            tagged release. Push a <code>v*</code> tag to trigger them.
-          </li>
-          <li>
-            All builds are demo mode: sample data, simulated bookings, nothing
-            is charged.
+              Check the releases page
+            </a>{" "}
+            for the latest assets.
           </li>
         </ul>
       </div>
@@ -161,52 +182,61 @@ export function DownloadPage() {
 
 function DownloadCardItem({ card: c }: { card: DownloadCard }) {
   const IconCmp = c.icon;
-  const available = c.status === "available" || c.status === "browser";
+  const isReady = c.status === "available" || c.status === "browser";
+  const isBuilding = c.status === "building";
 
   return (
     <Surface
-      effect={available ? ["spotlight", "reveal-border"] : "none"}
-      material={available ? "surface" : "none"}
+      effect={isReady ? ["spotlight", "reveal-border"] : "none"}
+      material={isReady ? "surface" : "none"}
       radius="md"
-      depth={available ? 2 : 0}
-      lift={available}
+      depth={isReady ? 2 : 0}
+      lift={isReady}
       className={[
         "relative flex h-full flex-col p-6",
-        available
+        isReady
           ? "bg-[var(--color-surface)] border border-[var(--color-line)]"
-          : "border border-dashed border-[var(--color-line)] bg-[var(--color-canvas)] opacity-70",
+          : isBuilding
+            ? "border border-dashed border-[var(--color-catering)] bg-[var(--color-catering-tint)]/30"
+            : "border border-dashed border-[var(--color-line)] bg-[var(--color-canvas)] opacity-60",
       ].join(" ")}
     >
       {/* Status badge */}
       <span
         className={[
-          "absolute right-4 top-4 flex items-center gap-1 rounded-[var(--radius-pill)] px-2.5 py-1 text-[0.75rem] font-semibold",
+          "absolute right-4 top-4 flex items-center gap-1.5 rounded-[var(--radius-pill)] px-2.5 py-1 text-[0.72rem] font-semibold",
           c.status === "available"
             ? "bg-[var(--color-success-tint)] text-[var(--color-success)]"
             : c.status === "browser"
               ? "bg-[var(--color-primary-tint)] text-[var(--color-primary-ink)]"
-              : "bg-[var(--color-sunken)] text-[var(--color-ink-muted)]",
+              : c.status === "building"
+                ? "bg-[var(--color-catering-tint)] text-[var(--color-catering-ink)]"
+                : "bg-[var(--color-sunken)] text-[var(--color-ink-muted)]",
         ].join(" ")}
       >
-        {c.status === "available" && (
-          <CheckCircle size={12} weight="fill" />
-        )}
+        {c.status === "available" && <CheckCircle size={12} weight="fill" />}
         {c.status === "browser" && <Globe size={12} weight="bold" />}
-        {c.status === "soon" && <Clock size={12} weight="fill" />}
+        {(c.status === "building" || c.status === "soon") && (
+          <Clock size={12} weight="fill" />
+        )}
         {c.status === "available"
           ? "Available"
           : c.status === "browser"
             ? "Web app"
-            : "Coming soon"}
+            : c.status === "building"
+              ? "Building in CI"
+              : "Coming soon"}
       </span>
 
       <IconCmp
         size={32}
         weight="duotone"
         className={
-          available
+          isReady
             ? "text-[var(--color-primary-ink)]"
-            : "text-[var(--color-ink-muted)]"
+            : isBuilding
+              ? "text-[var(--color-catering-ink)]"
+              : "text-[var(--color-ink-muted)]"
         }
       />
       <h3 className="text-h3 mt-3">{c.heading}</h3>
@@ -214,7 +244,6 @@ function DownloadCardItem({ card: c }: { card: DownloadCard }) {
         {c.detail}
       </p>
 
-      {/* Version + size */}
       {c.version && (
         <p className="mt-2 text-[0.75rem] text-[var(--color-ink-muted)]">
           v{c.version} · {c.size}
@@ -222,18 +251,17 @@ function DownloadCardItem({ card: c }: { card: DownloadCard }) {
       )}
 
       <div className="mt-4 flex flex-col gap-2">
-        {c.status === "available" && c.href && c.filename && (
+        {/* Available: real download */}
+        {c.status === "available" && c.href && (
           <>
             <DownloadButton
               href={c.href}
-              filename={c.filename}
               label={c.primaryLabel}
               className="w-full"
             />
-            {c.secondaryLabel && c.secondaryHref && c.secondaryFilename && (
+            {c.secondaryLabel && c.secondaryHref && (
               <DownloadButton
                 href={c.secondaryHref}
-                filename={c.secondaryFilename}
                 label={c.secondaryLabel}
                 className="w-full"
               />
@@ -241,6 +269,7 @@ function DownloadCardItem({ card: c }: { card: DownloadCard }) {
           </>
         )}
 
+        {/* Browser: open app */}
         {c.status === "browser" && c.to && (
           <Link to={c.to}>
             <Button glow className="w-full">
@@ -250,6 +279,30 @@ function DownloadCardItem({ card: c }: { card: DownloadCard }) {
           </Link>
         )}
 
+        {/* Building: link to releases page */}
+        {c.status === "building" && (
+          <>
+            <a
+              href={GITHUB_RELEASES}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full"
+            >
+              <Button variant="secondary" className="w-full">
+                <GithubLogo size={18} weight="bold" />
+                Check releases page
+                <ArrowSquareOut size={14} />
+              </Button>
+            </a>
+            {c.unavailableReason && (
+              <p className="text-[0.75rem] text-[var(--color-ink-muted)]">
+                {c.unavailableReason}
+              </p>
+            )}
+          </>
+        )}
+
+        {/* Coming soon: disabled */}
         {c.status === "soon" && (
           <>
             <Button variant="secondary" className="w-full" disabled>
