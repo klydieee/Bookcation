@@ -269,7 +269,7 @@ npm run typecheck
 npm run build
 ```
 
-Create a free Geoapify project to get an API key, copy `.env.example` to `.env.local`, and replace the placeholder value. Set the same `GEOAPIFY_API_KEY` in your Vercel project's environment variables for deployment. Do not commit the key. Geoapify requires attribution; map tiles are from OpenStreetMap and include on-map attribution.
+Create a free Geoapify project to get an API key, copy `.env.example` to `.env.local`, and replace the placeholder value. Set the same `GEOAPIFY_API_KEY` in your Vercel project's environment variables for deployment. Do not commit the key; Geoapify uses it for nearby-place search and geocoding on the server. The map uses MapLibre GL with OpenFreeMap's Liberty vector style, which needs no map API key or billing account. OpenStreetMap data attribution is included on the map. See [OpenFreeMap](https://openfreemap.org/) for public service details.
 
 ### Tech stack
 
@@ -280,7 +280,7 @@ Create a free Geoapify project to get an API key, copy `.env.example` to `.env.l
 | Styles | Tailwind CSS v4 (`@theme` tokens) |
 | State | Zustand (localStorage persistence) |
 | Routing | React Router 6 |
-| Maps | Leaflet + OpenStreetMap tiles; Geoapify Places and Geocoding APIs |
+| Maps | MapLibre GL + OpenFreeMap Liberty style; Geoapify Places and Geocoding APIs |
 | Icons | Phosphor Icons |
 | Fonts | Bricolage Grotesque + Atkinson Hyperlegible Next (self-hosted) |
 | Desktop | Tauri 2 |

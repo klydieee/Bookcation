@@ -1,34 +1,46 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  CircleMarker,
-  MapContainer,
+  AttributionControl,
+  Map as MapLibreMap,
+  Marker,
+  NavigationControl,
   Popup,
-  TileLayer,
-  useMap,
-} from "react-leaflet";
+  setWorkerUrl,
+} from "maplibre-gl";
 import type { NearbyPlace, NearbySearchResult } from "@/lib/nearby-types";
-import "leaflet/dist/leaflet.css";
+import mapWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
+import "maplibre-gl/dist/maplibre-gl.css";
 
-function MapViewUpdater({
-  latitude,
-  longitude,
-  zoom,
-}: {
-  latitude: number;
-  longitude: number;
-  zoom: number;
-}) {
-  const map = useMap();
-  useEffect(() => {
-    map.setView([latitude, longitude], zoom);
-  }, [latitude, longitude, map, zoom]);
-  return null;
-}
+setWorkerUrl(mapWorkerUrl);
 
 function formatDistance(meters: number): string {
   return meters < 1000
     ? `${meters} m away`
     : `${(meters / 1000).toFixed(1)} km away`;
+}
+
+function createPlaceMarker(
+  place: NearbyPlace,
+  selected: boolean,
+  onSelectPlace: (place: NearbyPlace) => void,
+): Marker {
+  const element = document.createElement("button");
+  element.type = "button";
+  element.className = `nearby-map-marker${selected ? " nearby-map-marker--selected" : ""}`;
+  element.setAttribute(
+    "aria-label",
+    `${place.name}, ${formatDistance(place.distanceMeters)}`,
+  );
+  element.title = place.name;
+  element.addEventListener("click", () => onSelectPlace(place));
+
+  const popup = new Popup({ offset: 18, closeButton: false }).setText(
+    `${place.name} · ${formatDistance(place.distanceMeters)}`,
+  );
+
+  return new Marker({ element, anchor: "bottom" })
+    .setLngLat([place.longitude, place.latitude])
+    .setPopup(popup);
 }
 
 export default function NearbyMap({
@@ -46,56 +58,96 @@ export default function NearbyMap({
   onSelectPlace: (place: NearbyPlace) => void;
   label: string;
 }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<MapLibreMap | null>(null);
+  const [mapError, setMapError] = useState("");
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    let styleLoaded = false;
+    const map = new MapLibreMap({
+      container: containerRef.current,
+      style: "https://tiles.openfreemap.org/styles/liberty",
+      center: [center.longitude, center.latitude],
+      zoom: 14,
+      scrollZoom: false,
+      attributionControl: false,
+    });
+    mapRef.current = map;
+    map.addControl(new NavigationControl({ showCompass: false }), "top-right");
+    map.addControl(new AttributionControl({ compact: true }), "bottom-right");
+    map.once("load", () => {
+      styleLoaded = true;
+      setMapError("");
+    });
+    map.on("error", () => {
+      if (!styleLoaded) {
+        setMapError("The map couldn't be loaded. Check your connection and try again.");
+      }
+    });
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    map.flyTo({
+      center: [center.longitude, center.latitude],
+      zoom: selectedPlace ? 16 : 14,
+      duration: 500,
+    });
+  }, [center.latitude, center.longitude, selectedPlace]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const markers = places.map((place) =>
+      createPlaceMarker(
+        place,
+        selectedPlace?.id === place.id,
+        onSelectPlace,
+      ).addTo(map),
+    );
+
+    if (mapCenter) {
+      const element = document.createElement("div");
+      element.className = "nearby-map-center-marker";
+      element.setAttribute("aria-hidden", "true");
+      markers.push(
+        new Marker({ element, anchor: "center" })
+          .setLngLat([mapCenter.longitude, mapCenter.latitude])
+          .setPopup(new Popup({ offset: 12, closeButton: false }).setText(mapCenter.label))
+          .addTo(map),
+      );
+    }
+
+    return () => {
+      markers.forEach((marker) => marker.remove());
+    };
+  }, [mapCenter, onSelectPlace, places, selectedPlace]);
+
   return (
-    <MapContainer
-      center={[center.latitude, center.longitude]}
-      zoom={14}
-      scrollWheelZoom={false}
-      className="z-0 h-64 w-full sm:h-80"
+    <div
+      ref={containerRef}
+      className="relative z-0 h-64 w-full sm:h-80"
+      role="application"
       aria-label={label}
     >
-      <MapViewUpdater
-        latitude={center.latitude}
-        longitude={center.longitude}
-        zoom={selectedPlace ? 16 : 14}
-      />
-      <TileLayer
-        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-        maxZoom={19}
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      {mapCenter && (
-        <CircleMarker
-          center={[mapCenter.latitude, mapCenter.longitude]}
-          radius={6}
-          pathOptions={{
-            color: "var(--color-primary-ink)",
-            fillColor: "var(--color-primary)",
-            fillOpacity: 0.9,
-          }}
+      {mapError && (
+        <div
+          className="absolute inset-0 z-10 grid place-items-center bg-[var(--color-sunken)] p-6 text-center text-[0.875rem] text-[var(--color-ink-muted)]"
+          role="alert"
         >
-          <Popup>{mapCenter.label}</Popup>
-        </CircleMarker>
+          {mapError}
+        </div>
       )}
-      {places.map((place) => (
-        <CircleMarker
-          key={place.id}
-          center={[place.latitude, place.longitude]}
-          radius={selectedPlace?.id === place.id ? 9 : 7}
-          eventHandlers={{ click: () => onSelectPlace(place) }}
-          pathOptions={{
-            color: "var(--color-primary-ink)",
-            fillColor: "var(--color-primary)",
-            fillOpacity: 0.8,
-          }}
-        >
-          <Popup>
-            <strong>{place.name}</strong>
-            <br />
-            {formatDistance(place.distanceMeters)}
-          </Popup>
-        </CircleMarker>
-      ))}
-    </MapContainer>
+    </div>
   );
 }

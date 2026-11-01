@@ -487,6 +487,16 @@ export function NearbyGuide({
           ))}
         </div>
         <p className="mt-3 text-[0.75rem] text-[var(--color-ink-muted)]">
+          Map tiles by{" "}
+          <a
+            href="https://openfreemap.org/"
+            target="_blank"
+            rel="noreferrer"
+            className="underline"
+          >
+            OpenFreeMap
+          </a>
+          {" · "}
           Nearby places powered by{" "}
           <a
             href="https://www.geoapify.com/"
