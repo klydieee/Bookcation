@@ -326,6 +326,24 @@ export function NearbyGuide({
           })}
         </div>
 
+        {hasHotel && (
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-sm)] bg-[var(--color-primary-tint)] p-3">
+            <p className="text-[0.875rem] text-[var(--color-ink)]">
+              A hotel stay is on your plan, so catering is unavailable. Nearby
+              restaurants may offer pickup or delivery; confirm with each restaurant.
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={() => chooseService("restaurants")}
+              disabled={service === "restaurants"}
+            >
+              Browse nearby restaurants
+            </Button>
+          </div>
+        )}
+
         {locationMessage && (
           <p className="mt-3 text-[0.875rem] text-[var(--color-ink-muted)]" role="status">
             {locationMessage}
@@ -417,11 +435,23 @@ export function NearbyGuide({
           </p>
         )}
         {!searching && !searchError && places.length === 0 && (
-          <p className="mb-3 text-[0.875rem] text-[var(--color-ink-muted)]">
-            {hasSearchLocation
-              ? `No ${currentService.label.toLowerCase()} found within ${searchRadius}. Place coverage varies by area.`
-              : "Search a city or area, or use your current location to find nearby services."}
-          </p>
+          <div className="mb-3 flex flex-wrap items-center gap-3">
+            <p className="text-[0.875rem] text-[var(--color-ink-muted)]">
+              {hasSearchLocation
+                ? `No ${currentService.label.toLowerCase()} found within ${searchRadius}. Place coverage varies by area.`
+                : "Search a city or area, or use your current location to find nearby services."}
+            </p>
+            {service === "catering" && hasSearchLocation && (
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                onClick={() => chooseService("restaurants")}
+              >
+                Try nearby restaurants instead
+              </Button>
+            )}
+          </div>
         )}
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {places.map((place) => (

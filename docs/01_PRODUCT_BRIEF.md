@@ -30,6 +30,7 @@ The app includes a Vercel serverless endpoint for live nearby-place discovery. T
 | Flight / booking inventory | Deterministic **mock data** behind an API interface | Real providers swap in via `HttpAdapter` |
 | Nearby places | Vercel `/api/nearby` endpoint uses Geoapify Places and Geocoding APIs for live nearby search; the Geoapify free plan currently includes up to 3,000 requests per day and requires an API key and attribution | Monitor quota and upgrade or switch provider as usage grows |
 | Maps and location | Interactive Leaflet map with OpenStreetMap tiles; browse near the active trip destination or a typed area. Current location is requested only after the user selects the location button and grants browser permission. No city is assumed when there is no trip | Follow OpenStreetMap tile usage policy and review location-consent requirements |
+| Hotel meal alternatives | Catering is hidden when a hotel is on the active plan; the nearby guide points users to restaurants and advises confirming pickup or delivery with each business | Integrate verified restaurant ordering providers |
 | Provider labels | Cebu Pacific, Philippine Airlines, Grab, Uber, and food brands appear as planning options only | Partner agreements and live provider integrations |
 | Ride planning | Sample ride reminders are saved to the trip plan; no ride is requested | Real ride booking integration and confirmation |
 | Auth | Mock guest session (local only) | Real auth provider |
