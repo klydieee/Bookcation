@@ -11,13 +11,13 @@ import type {
 // illustrative and do not imply availability or a business partnership.
 
 export const AIRPORTS: Airport[] = [
-  { code: "MNL", city: "Manila", name: "Ninoy Aquino International" },
-  { code: "CEB", city: "Cebu City", name: "Mactan-Cebu International" },
-  { code: "DVO", city: "Davao City", name: "Francisco Bangoy International" },
-  { code: "CRK", city: "Angeles", name: "Clark International" },
-  { code: "ILO", city: "Iloilo City", name: "Iloilo International" },
-  { code: "PPS", city: "Puerto Princesa", name: "Puerto Princesa International" },
-  { code: "TAG", city: "Panglao", name: "Bohol-Panglao International" },
+  { code: "MNL", city: "Manila", name: "Ninoy Aquino International", latitude: 14.5086, longitude: 121.0198 },
+  { code: "CEB", city: "Cebu City", name: "Mactan-Cebu International", latitude: 10.3075, longitude: 123.9794 },
+  { code: "DVO", city: "Davao City", name: "Francisco Bangoy International", latitude: 7.1255, longitude: 125.6458 },
+  { code: "CRK", city: "Angeles", name: "Clark International", latitude: 15.1859, longitude: 120.5600 },
+  { code: "ILO", city: "Iloilo City", name: "Iloilo International", latitude: 10.8330, longitude: 122.4934 },
+  { code: "PPS", city: "Puerto Princesa", name: "Puerto Princesa International", latitude: 9.7421, longitude: 118.7587 },
+  { code: "TAG", city: "Panglao", name: "Bohol-Panglao International", latitude: 9.5703, longitude: 123.6856 },
   { code: "SIN", city: "Singapore", name: "Changi" },
   { code: "HKG", city: "Hong Kong", name: "Hong Kong International" },
   { code: "NRT", city: "Tokyo", name: "Narita International" },
@@ -92,6 +92,7 @@ export function generateFlights(
   toCode: string,
   dateISO: string,
   tripType: "one-way" | "round trip",
+  returnDateISO?: string,
 ): FlightOffer[] {
   const from = airportByCode(fromCode);
   const to = airportByCode(toCode);
@@ -119,6 +120,15 @@ export function generateFlights(
     date.setHours(departHour, departMin, 0, 0);
     const departISO = date.toISOString();
     const arriveISO = addMinutes(departISO, durationMin);
+    const returnDate = returnDateISO ? new Date(returnDateISO) : null;
+    if (returnDate && tripType === "round trip") {
+      returnDate.setHours(8 + Math.floor(rand() * 11), [0, 15, 30, 45][Math.floor(rand() * 4)], 0, 0);
+    }
+    const returnDepartISO = returnDate?.toISOString();
+    const returnArriveISO =
+      returnDepartISO && tripType === "round trip"
+        ? addMinutes(returnDepartISO, durationMin)
+        : undefined;
     const basePrice = domestic
       ? 2400 + stops * 900 + Math.floor(rand() * 6200)
       : 14000 + stops * 5200 + Math.floor(rand() * 26000);
@@ -137,6 +147,8 @@ export function generateFlights(
       price: Math.round((basePrice * multiplier) / 2) * 2,
       cabin: rand() < 0.75 ? "Economy" : rand() < 0.9 ? "Premium" : "Business",
       tripType,
+      ...(returnDepartISO ? { returnDepartISO } : {}),
+      ...(returnArriveISO ? { returnArriveISO } : {}),
     });
   }
 

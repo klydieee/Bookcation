@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Path, Plus, SuitcaseRolling } from "@phosphor-icons/react";
+import { Path, Plus, SuitcaseRolling, Trash } from "@phosphor-icons/react";
 import { useTrips, activePlan, planTotal } from "@/store/tripStore";
 import { usePrefs } from "@/store/prefsStore";
-import { money, dateShort } from "@/lib/format";
+import { addDays, money, dateShort } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, Select } from "@/components/ui/Field";
 import { Card } from "@/components/ui/Card";
@@ -15,11 +15,13 @@ import { AIRPORTS } from "@/lib/mock-data";
 export function TripsPage() {
   const trips = useTrips((s) => s.trips);
   const createTrip = useTrips((s) => s.createTrip);
+  const deleteTrip = useTrips((s) => s.deleteTrip);
   const setActiveTrip = useTrips((s) => s.setActiveTrip);
   const currency = usePrefs((s) => s.currency);
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [open, setOpen] = useState(params.get("start") === "1");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const cities = [...new Set(AIRPORTS.map((a) => a.city))];
   const [name, setName] = useState("My trip");
@@ -29,9 +31,17 @@ export function TripsPage() {
   );
   const [days, setDays] = useState(5);
   const [travelers, setTravelers] = useState(2);
+  const endDate = start
+    ? dateShort(
+        addDays(
+          new Date(`${start}T12:00:00`).toISOString(),
+          Math.max(1, days),
+        ),
+      )
+    : "";
 
   function submit() {
-    if (!city) return;
+    if (!city || !start || days < 1 || travelers < 1) return;
     const id = createTrip({
       name,
       destinationCity: city,
@@ -119,8 +129,14 @@ export function TripsPage() {
                 />
               </div>
             </div>
+            <p className="mt-3 rounded-[var(--radius-sm)] bg-[var(--color-primary-tint)] px-3 py-2 text-sm text-[var(--color-primary-ink)]">
+              Trip dates: {start ? dateShort(new Date(`${start}T12:00:00`).toISOString()) : "Choose a start date"} – {endDate}
+            </p>
             <div className="mt-4 flex gap-2">
-              <Button onClick={submit} disabled={!city}>
+              <Button
+                onClick={submit}
+                disabled={!city || !start || days < 1 || travelers < 1}
+              >
                 Create trip and plan
               </Button>
               <Button variant="ghost" onClick={() => setOpen(false)}>
@@ -143,13 +159,15 @@ export function TripsPage() {
           {trips.map((t) => {
             const plan = activePlan(t);
             return (
-              <Link
+              <Card
                 key={t.id}
-                to={`/app/trips/${t.id}`}
-                onClick={() => setActiveTrip(t.id)}
-                className="block"
+                className="p-5"
               >
-                <Card interactive className="p-5">
+                <Link
+                  to={`/app/trips/${t.id}`}
+                  onClick={() => setActiveTrip(t.id)}
+                  className="block rounded-[var(--radius-sm)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
+                >
                   <div className="mb-2 flex items-center gap-2">
                     <SuitcaseRolling
                       size={22}
@@ -158,7 +176,8 @@ export function TripsPage() {
                     <h3 className="text-h3">{t.name}</h3>
                   </div>
                   <p className="text-[0.875rem] text-[var(--color-ink-muted)]">
-                    {t.destinationCity} · {dateShort(t.startDateISO)} ·{" "}
+                    {t.destinationCity} · {dateShort(t.startDateISO)} –{" "}
+                    {dateShort(addDays(t.startDateISO, t.days))} ·{" "}
                     {t.days} days · {t.travelers} travelers
                   </p>
                   <div className="mt-3 flex items-center justify-between">
@@ -170,8 +189,44 @@ export function TripsPage() {
                       {money(plan ? planTotal(plan) : 0, currency)}
                     </span>
                   </div>
-                </Card>
-              </Link>
+                </Link>
+                <div className="mt-4 flex justify-end border-t border-[var(--color-line)] pt-3">
+                  {confirmDeleteId === t.id ? (
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="mr-auto text-xs text-[var(--color-ink-muted)]">
+                        Delete this trip, its plans, and its demo booking records?
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => {
+                          deleteTrip(t.id);
+                          setConfirmDeleteId(null);
+                        }}
+                      >
+                        Confirm delete
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setConfirmDeleteId(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      aria-label={`Delete trip ${t.name}`}
+                      onClick={() => setConfirmDeleteId(t.id)}
+                    >
+                      <Trash size={16} />
+                      Delete trip
+                    </Button>
+                  )}
+                </div>
+              </Card>
             );
           })}
         </div>

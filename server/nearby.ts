@@ -45,9 +45,14 @@ interface GeoapifyPlaceProperties {
   lat: number;
   lon: number;
   categories?: string[];
+  opening_hours?: string;
+  description?: string;
   website?: string;
   phone?: string;
   contact?: { phone?: string };
+  datasource?: {
+    raw?: Record<string, unknown>;
+  };
 }
 
 interface GeoapifyPlacesResponse {
@@ -129,6 +134,40 @@ function distanceMeters(
   return Math.round(6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
 
+function textValue(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function safeHttpUrl(value: unknown): string | undefined {
+  const text = textValue(value);
+  if (!text) return undefined;
+  try {
+    const url = new URL(/^[a-z][a-z\d+.-]*:/i.test(text) ? text : `https://${text}`);
+    return url.protocol === "https:" || url.protocol === "http:"
+      ? url.toString()
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function mapImage(raw: Record<string, unknown> | undefined): {
+  imageUrl?: string;
+  imageCreditUrl?: string;
+} {
+  const commons = textValue(raw?.wikimedia_commons);
+  if (commons && /^File:/i.test(commons)) {
+    const file = commons.replace(/^File:/i, "");
+    return {
+      imageUrl: `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}`,
+      imageCreditUrl: `https://commons.wikimedia.org/wiki/${encodeURIComponent(commons.replaceAll(" ", "_"))}`,
+    };
+  }
+
+  const imageUrl = safeHttpUrl(raw?.image);
+  return imageUrl ? { imageUrl, imageCreditUrl: imageUrl } : {};
+}
+
 function toNearbyPlace(
   properties: GeoapifyPlaceProperties,
   center: { latitude: number; longitude: number },
@@ -142,6 +181,9 @@ function toNearbyPlace(
     ),
   );
   const categoryLabel = categoryValue?.split(".").pop()?.replaceAll("_", " ");
+  const raw = properties.datasource?.raw;
+  const image = mapImage(raw);
+  const website = safeHttpUrl(properties.website);
 
   return {
     id: properties.place_id,
@@ -157,7 +199,21 @@ function toNearbyPlace(
       latitude: properties.lat,
       longitude: properties.lon,
     }),
-    ...(properties.website ? { website: properties.website } : {}),
+    ...(image.imageUrl ? { imageUrl: image.imageUrl } : {}),
+    ...(image.imageCreditUrl ? { imageCreditUrl: image.imageCreditUrl } : {}),
+    ...(textValue(properties.description) ?? textValue(raw?.description)
+      ? {
+          description:
+            textValue(properties.description) ?? textValue(raw?.description),
+        }
+      : {}),
+    ...(textValue(properties.opening_hours) ?? textValue(raw?.opening_hours)
+      ? {
+          openingHours:
+            textValue(properties.opening_hours) ?? textValue(raw?.opening_hours),
+        }
+      : {}),
+    ...(website ? { website } : {}),
     ...(properties.phone ?? properties.contact?.phone
       ? { phone: properties.phone ?? properties.contact?.phone }
       : {}),

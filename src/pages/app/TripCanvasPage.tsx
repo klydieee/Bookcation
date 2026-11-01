@@ -8,6 +8,7 @@ import {
   ForkKnife,
   GitDiff,
   GitFork,
+  MapPin,
   Trash,
   Warning,
 } from "@phosphor-icons/react";
@@ -20,7 +21,7 @@ import {
 } from "@/store/tripStore";
 import type { Plan, PlanItem, ModuleId } from "@/lib/types";
 import { usePrefs } from "@/store/prefsStore";
-import { money } from "@/lib/format";
+import { dateShort, money, timeOf } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Field";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -157,7 +158,7 @@ export function TripCanvasPage() {
           <EmptyState
             icon={AirplaneTilt}
             title="This plan is empty"
-            body="Add flights, meals, and catering from their pages. They land on a day here."
+            body="Add a flight or a nearby service request. Items are grouped by trip day here."
             action={
               <Link to="/app/flights">
                 <Button>Search flights</Button>
@@ -245,7 +246,19 @@ function CanvasItemRow({
   onMove: (day: number) => void;
   onRemove: () => void;
 }) {
-  const IconCmp = item.kind === "ride" ? Car : moduleIcon[item.module];
+  const IconCmp =
+    item.kind === "ride"
+      ? Car
+      : item.kind === "place"
+        ? MapPin
+        : moduleIcon[item.module];
+  const placeSchedule =
+    item.kind === "place"
+      ? item.placeBooking.service === "hotels" &&
+        item.placeBooking.endDateISO
+        ? `${dateShort(item.placeBooking.dateISO)} – ${dateShort(item.placeBooking.endDateISO)} · ${item.placeBooking.partySize} guests`
+        : `${dateShort(item.placeBooking.dateISO)} · ${timeOf(item.placeBooking.timeISO)} · ${item.placeBooking.partySize} people`
+      : "";
   return (
     <li className="hover-tint enter-up flex items-center gap-3 rounded-[var(--radius-sm)] bg-[var(--color-canvas)] p-3 hover:bg-[var(--color-sunken)]">
       <span
@@ -257,8 +270,21 @@ function CanvasItemRow({
         className="shrink-0"
         style={{ color: `var(--color-${item.module})` }}
       />
-      <span className="min-w-0 flex-1 truncate">{item.title}</span>
-      <span className="num-md tnum">{money(item.price, currency)}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate">{item.title}</span>
+        {placeSchedule && (
+          <span className="block text-xs text-[var(--color-ink-muted)]">
+            {placeSchedule}
+          </span>
+        )}
+      </span>
+      <span className="text-right text-sm font-semibold">
+        {item.kind === "place" ? (
+          <span className="text-[var(--color-ink-muted)]">Price on request</span>
+        ) : (
+          <span className="num-md tnum">{money(item.price, currency)}</span>
+        )}
+      </span>
       <label className="sr-only" htmlFor={`move-${item.id}`}>
         Move {item.title} to day
       </label>

@@ -20,6 +20,7 @@ export interface FlightQuery {
   to: string;
   dateISO: string;
   tripType: "one-way" | "round trip";
+  returnDateISO?: string;
 }
 
 export interface BookcationApi {
@@ -36,7 +37,15 @@ function delay<T>(value: T, ms = 320): Promise<T> {
 
 export const mockApi: BookcationApi = {
   searchFlights(q) {
-    return delay(generateFlights(q.from, q.to, q.dateISO, q.tripType));
+    return delay(
+      generateFlights(
+        q.from,
+        q.to,
+        q.dateISO,
+        q.tripType,
+        q.returnDateISO,
+      ),
+    );
   },
   listRestaurants(city) {
     return delay(generateRestaurants(city || "Lisbon"));

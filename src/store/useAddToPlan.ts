@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTrips } from "./tripStore";
 import { useActivePlanContext } from "./useActivePlan";
 import type { PlanItem } from "@/lib/types";
@@ -8,6 +8,7 @@ import { uid } from "./id";
 // to Trips to start one.
 export function useAddToPlan() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { trip, plan } = useActivePlanContext();
   const addItem = useTrips((s) => s.addItem);
 
@@ -24,6 +25,25 @@ export function useAddToPlan() {
       return false;
     }
     addItem(trip.id, plan.id, { ...partial, id: uid("item") } as PlanItem);
+    const params = new URLSearchParams(location.search);
+    const guideTripId =
+      params.get("guide") ??
+      (location.pathname === `/app/guide/${trip.id}` ? trip.id : null);
+    const guideStep = Number(params.get("step"));
+    if (
+      guideTripId === trip.id &&
+      Number.isInteger(guideStep) &&
+      guideStep >= 0 &&
+      guideStep < 5
+    ) {
+      params.set("step", String(guideStep + 1));
+      params.set("status", "added");
+      params.set(
+        "service",
+        ["flight", "stay", "food", "catering", "ride"][guideStep],
+      );
+      navigate(`/app/guide/${trip.id}?${params.toString()}`);
+    }
     return true;
   }
 

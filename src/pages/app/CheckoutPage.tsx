@@ -18,7 +18,9 @@ export function CheckoutPage() {
   const trip = trips.find((t) => t.id === tripId);
   const plan = trip?.plans.find((p) => p.id === planId);
   const booking = bookings.find(
-    (b) => b.tripName === trip?.name && b.planName === plan?.name,
+    (b) =>
+      (b.tripId === tripId && b.planId === planId) ||
+      (!b.tripId && b.tripName === trip?.name && b.planName === plan?.name),
   );
 
   if (!trip || !plan) {
@@ -42,8 +44,8 @@ export function CheckoutPage() {
         />
         <h1 className="text-h1 mt-3">Demo booking created</h1>
         <p className="mt-1 text-[var(--color-ink-muted)]">
-          This is a simulated booking. No airline, restaurant, or caterer has
-          been contacted.
+          This is a simulated booking. No provider has been contacted, and
+          nearby place requests are not sent to businesses.
         </p>
       </div>
 
@@ -72,10 +74,21 @@ export function CheckoutPage() {
           {plan.items.map((it) => (
             <li key={it.id} className="flex justify-between text-[0.875rem]">
               <span className="truncate pr-3">{it.title}</span>
-              <span className="tnum">{money(it.price, currency)}</span>
+              <span className="tnum">
+                {it.kind === "place"
+                  ? "Price on request"
+                  : money(it.price, currency)}
+              </span>
             </li>
           ))}
         </ul>
+
+        {plan.items.some((item) => item.kind === "place") && (
+          <p className="mb-4 text-xs text-[var(--color-ink-muted)]">
+            Place requests are planning reminders only. Confirm booking,
+            availability, and pricing directly with each business.
+          </p>
+        )}
 
         <div className="flex items-center justify-between border-t border-[var(--color-line)] pt-4">
           <span className="text-h4">Total</span>

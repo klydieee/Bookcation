@@ -245,6 +245,10 @@
   animation: trip-flight-across 2.4s var(--ease-out-quint) both;
 }
 
+.trip-guide-plane {
+  transition: left 500ms var(--ease-out-quint);
+}
+
 @keyframes trip-flight-across {
   from {
     left: 0;
@@ -257,6 +261,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .trip-guide-plane {
+    transition: none;
+  }
+
   .trip-route-plane {
     animation: none;
     left: 50%;
@@ -268,6 +276,10 @@
   animation: none;
   left: 50%;
   transform: translateX(-50%);
+}
+
+.reduce-motion .trip-guide-plane {
+  transition: none;
 }
 
 .trip-launch-transition {

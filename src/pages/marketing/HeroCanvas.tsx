@@ -1,6 +1,8 @@
 import { useState } from "react";
 import {
   AirplaneTilt,
+  Bed,
+  Car,
   CookingPot,
   ForkKnife,
   GitFork,
@@ -13,21 +15,29 @@ import { usePrefersReducedMotion } from "@/lib/motion";
 // updates the total. Illustrative prices only (02 §5.2 caption).
 const BASE = [
   { icon: AirplaneTilt, color: "flight", label: "JFK to LIS · Skyloom Air", price: 438 },
+  { icon: Bed, color: "stay", label: "Lisbon Harbor Hotel · 4 nights", price: 720 },
   { icon: ForkKnife, color: "food", label: "Casa do Mar · table for 2", price: 0 },
   { icon: CookingPot, color: "catering", label: "Table & Co · boxed for 12", price: 360 },
+  { icon: Car, color: "trip", label: "Airport ride · Lisbon", price: 38 },
 ];
 
 export function HeroCanvas() {
   const [forked, setForked] = useState(false);
   const reduce = usePrefersReducedMotion();
   // Plan B swaps the flight for a cheaper one.
-  const planB = [{ ...BASE[0], label: "JFK to LIS · Harbor Jet", price: 352 }, BASE[1], BASE[2]];
+  const planB = [
+    { ...BASE[0], label: "JFK to LIS · Harbor Jet", price: 352 },
+    { ...BASE[1], label: "Alfama House · 4 nights", price: 640 },
+    BASE[2],
+    BASE[3],
+    { ...BASE[4], label: "Airport ride · Lisbon", price: 32 },
+  ];
   const totalA = BASE.reduce((s, i) => s + i.price, 0);
   const totalB = planB.reduce((s, i) => s + i.price, 0);
   const items = forked ? planB : BASE;
 
   return (
-    <div className="relative rounded-[var(--radius-lg)] border border-[var(--color-line)] bg-[var(--color-surface)] p-4 shadow-4">
+    <div className="relative rounded-[var(--radius-lg)] border border-[var(--color-line)] bg-[var(--color-surface)] p-3 shadow-3 sm:p-4">
       {/* decorative route arc drawn once on load */}
       <svg
         aria-hidden
@@ -72,7 +82,7 @@ export function HeroCanvas() {
           return (
             <div
               key={item.color}
-              className="lift hero-ticket flex items-center gap-3 rounded-[var(--radius-sm)] border border-[var(--color-line)] bg-[var(--color-canvas)] p-3"
+              className="lift hero-ticket flex min-w-0 items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--color-line)] bg-[var(--color-canvas)] p-2.5 sm:gap-3 sm:p-3"
               style={
                 reduce ? undefined : { animationDelay: `${300 + i * 110}ms` }
               }
@@ -85,8 +95,8 @@ export function HeroCanvas() {
                 size={20}
                 style={{ color: `var(--color-${item.color})` }}
               />
-              <span className="flex-1 text-[0.9rem]">{item.label}</span>
-              <span className="num-md tnum text-[1rem]">${item.price}</span>
+              <span className="min-w-0 flex-1 text-[0.8rem] sm:text-[0.9rem]">{item.label}</span>
+              <span className="num-md tnum text-[0.9rem] sm:text-[1rem]">${item.price}</span>
             </div>
           );
         })}

@@ -4,13 +4,20 @@ import { Link } from "react-router-dom";
 import {
   AirplaneTilt,
   Bed,
+  CalendarBlank,
   Car,
+  CheckCircle,
+  Clock,
   CookingPot,
   ForkKnife,
+  GlobeHemisphereWest,
   MagnifyingGlass,
   MapPin,
   NavigationArrow,
+  Phone,
   Storefront,
+  Users,
+  X,
 } from "@phosphor-icons/react";
 import type { Icon } from "@phosphor-icons/react";
 import type {
@@ -19,6 +26,8 @@ import type {
   NearbySearchResult,
 } from "@/lib/nearby-types";
 import { useActivePlanContext } from "@/store/useActivePlan";
+import { useAddToPlan } from "@/store/useAddToPlan";
+import { addDays } from "@/lib/format";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Field";
 
@@ -49,17 +58,31 @@ function formatDistance(meters: number): string {
     : `${(meters / 1000).toFixed(1)} km away`;
 }
 
+function dateFieldValue(iso?: string): string {
+  if (!iso) {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  }
+  return iso.slice(0, 10);
+}
+
 export function NearbyGuide({
   city,
   initialService,
+  initialCoordinates,
+  onAirportSelect,
 }: {
   city: string;
   initialService?: NearbyCategory;
+  initialCoordinates?: string | null;
+  onAirportSelect?: (place: NearbyPlace) => void;
 }) {
   const [service, setService] = useState<NearbyCategory>(
     initialService ?? "restaurants",
   );
-  const [coordinates, setCoordinates] = useState<string | null>(null);
+  const [coordinates, setCoordinates] = useState<string | null>(
+    initialCoordinates ?? null,
+  );
   const [manualLocation, setManualLocation] = useState("");
   const [locationInput, setLocationInput] = useState("");
   const [locationMessage, setLocationMessage] = useState("");
@@ -72,8 +95,30 @@ export function NearbyGuide({
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
-  const { plan } = useActivePlanContext();
-  const hasHotel = Boolean(plan?.items.some((item) => item.kind === "stay"));
+  const { trip, plan } = useActivePlanContext();
+  const { add, hasActivePlan } = useAddToPlan();
+  const [bookingDate, setBookingDate] = useState(() =>
+    dateFieldValue(trip?.startDateISO),
+  );
+  const [bookingEndDate, setBookingEndDate] = useState(() =>
+    dateFieldValue(
+      trip ? addDays(trip.startDateISO, trip.days) : undefined,
+    ),
+  );
+  const [bookingTime, setBookingTime] = useState("19:00");
+  const [partySize, setPartySize] = useState(trip?.travelers ?? 2);
+  const [bookingMode, setBookingMode] = useState<
+    "reserve" | "pickup" | "delivery"
+  >("reserve");
+  const [imageFailed, setImageFailed] = useState(false);
+  const hasHotel = Boolean(
+    plan?.items.some(
+      (item) =>
+        item.kind === "stay" ||
+        (item.kind === "place" &&
+          item.placeBooking.service === "hotels"),
+    ),
+  );
   const availableServices = hasHotel
     ? SERVICES.filter((entry) => entry.id !== "catering")
     : SERVICES;
@@ -87,6 +132,39 @@ export function NearbyGuide({
   const placeForMap = selectedPlace
     ? { latitude: selectedPlace.latitude, longitude: selectedPlace.longitude }
     : mapCenter;
+  const tripLastDay = trip
+    ? addDays(trip.startDateISO, Math.max(0, trip.days - 1)).slice(0, 10)
+    : undefined;
+  const hotelCheckoutDate = trip
+    ? addDays(trip.startDateISO, trip.days).slice(0, 10)
+    : bookingEndDate;
+
+  useEffect(() => {
+    setCoordinates(initialCoordinates ?? null);
+    setManualLocation("");
+    setLocationInput("");
+    setSelectedPlace(null);
+  }, [initialCoordinates]);
+
+  useEffect(() => {
+    if (!trip) return;
+    setBookingDate(dateFieldValue(trip.startDateISO));
+    setBookingEndDate(dateFieldValue(addDays(trip.startDateISO, trip.days)));
+    setPartySize(trip.travelers);
+  }, [trip?.id]);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [selectedPlace?.id]);
+
+  useEffect(() => {
+    if (!selectedPlace) return;
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setSelectedPlace(null);
+    }
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [selectedPlace]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -129,7 +207,7 @@ export function NearbyGuide({
         setLocationMessage(
           liveLocation
             ? `Showing nearby places near ${manualLocation || "your current location"}.`
-            : `Showing nearby places for your ${city} trip destination.`,
+            : `Showing nearby ${currentService.label.toLowerCase()} near ${city}.`,
         );
       })
       .catch((error: unknown) => {
@@ -159,6 +237,66 @@ export function NearbyGuide({
   function chooseService(nextService: NearbyCategory) {
     setService(nextService);
     setSelectedPlace(null);
+  }
+
+  function addPlaceBooking() {
+    if (!selectedPlace || !trip) return;
+    const scheduledDate = new Date(`${bookingDate}T${bookingTime}:00`);
+    const dayIndex = Math.max(
+      0,
+      Math.min(
+        trip.days - 1,
+        Math.floor(
+          (Date.parse(`${bookingDate}T12:00:00`) -
+            Date.parse(`${dateFieldValue(trip.startDateISO)}T12:00:00`)) /
+            86400000,
+        ),
+      ),
+    );
+    const module =
+      service === "restaurants"
+        ? "food"
+        : service === "hotels"
+          ? "stay"
+          : service === "catering"
+            ? "catering"
+            : service === "flights"
+              ? "flight"
+              : "trip";
+    const mode = service === "restaurants" ? bookingMode : undefined;
+    const title = `${selectedPlace.name} · ${
+      mode === "reserve"
+        ? "table request"
+        : mode === "pickup"
+          ? "pickup request"
+          : mode === "delivery"
+            ? "delivery request"
+            : `${currentService.label.toLowerCase()} request`
+    }`;
+    const added = add({
+      kind: "place",
+      module,
+      dayIndex,
+      title,
+      price: 0,
+      placeBooking: {
+        service,
+        place: selectedPlace,
+        dateISO: scheduledDate.toISOString(),
+        timeISO: scheduledDate.toISOString(),
+        ...(service === "hotels"
+          ? {
+              endDateISO: new Date(`${bookingEndDate}T12:00:00`).toISOString(),
+            }
+          : {}),
+        partySize,
+        ...(mode ? { mode } : {}),
+      },
+    });
+    if (added) {
+      setSelectedPlace(null);
+      setLocationMessage(`${selectedPlace.name} added to ${plan?.name ?? "your trip"}.`);
+    }
   }
 
   function requestLocation() {
@@ -221,26 +359,35 @@ export function NearbyGuide({
       <div className="p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
+            <p className="mb-1 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-[var(--color-primary-ink)]">
+              Live map discovery
+            </p>
             <div className="flex items-center gap-2">
-              <MapPin size={20} weight="fill" className="text-[var(--color-primary-ink)]" />
+              <MapPin
+                size={20}
+                weight="fill"
+                className="text-[var(--color-primary-ink)]"
+              />
               <h2 className="text-h3">
                 {coordinates
-                  ? "Nearby services · your location"
+                  ? `Explore near you · ${currentService.label}`
                   : manualLocation
-                    ? `Nearby services · ${manualLocation}`
+                    ? `Explore near ${manualLocation}`
                     : city
-                      ? `Nearby services · ${city} trip`
-                      : "Nearby services"}
+                      ? `Explore near ${city}`
+                      : "Explore a location"}
               </h2>
             </div>
             <p className="mt-1 text-[0.875rem] text-[var(--color-ink-muted)]">
               {coordinates
-                ? "Live results are centered on your current location. You can also search another area."
+                ? `Live ${currentService.label.toLowerCase()} are centered on your current location. Select a place to highlight it on the map.`
                 : manualLocation
-                  ? `Nearby places are centered on ${manualLocation}.`
+                  ? `Live places are centered on ${manualLocation}. Select a result to locate it on the map.`
                   : city
-                    ? "Use your current location, enter an area, or browse services around your active trip destination."
-                    : "Use your current location or enter an area to browse live places. A trip destination is optional."}
+                    ? service === "flights"
+                      ? "The departure airport sets the map area. Change it above or use your current location to find nearby airports."
+                      : "Your trip destination sets the map area. Change it above or search another area to explore."
+                    : "Search an area or use your location. Results are live map places; booking options are shown separately below."}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -351,69 +498,63 @@ export function NearbyGuide({
         )}
       </div>
 
-      <div className="relative overflow-hidden border-y border-[var(--color-line)] bg-[var(--color-sunken)]">
-        {placeForMap ? (
-          <div className="relative">
-            <Suspense
-              fallback={
-                <div className="grid h-64 place-items-center text-[0.875rem] text-[var(--color-ink-muted)] sm:h-80">
-                  Loading map…
-                </div>
-              }
-            >
-              <NearbyMap
-                center={placeForMap}
-                mapCenter={mapCenter}
-                places={places}
-                selectedPlace={selectedPlace}
-                onSelectPlace={setSelectedPlace}
-                label={`Map showing ${currentService.label.toLowerCase()} near ${mapCenter?.label ?? "the selected place"}`}
-              />
-            </Suspense>
-            <a
-              href={openStreetMapUrl(
-                placeForMap.latitude,
-                placeForMap.longitude,
-              )}
-              target="_blank"
-              rel="noreferrer"
-              className="absolute bottom-3 right-3 z-[1000] rounded-[var(--radius-sm)] bg-[var(--color-surface)] px-3 py-2 text-[0.8rem] font-bold text-[var(--color-primary-ink)] shadow-2"
-            >
-              Open in OpenStreetMap
-            </a>
-          </div>
-        ) : (
-          <div className="grid h-64 place-items-center px-6 text-center text-[0.875rem] text-[var(--color-ink-muted)] sm:h-80">
-            {searching
-              ? "Finding this location on the map…"
-              : "Search a location to load the map."}
-          </div>
-        )}
-      </div>
-
-      <div className="p-4 sm:p-5">
-        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="text-h4">
-            {coordinates
-              ? `${currentService.label} near you`
-              : manualLocation
-                ? `${currentService.label} around ${manualLocation}`
-                : city
-                  ? `${currentService.label} around ${city}`
-                  : `${currentService.label} nearby`}
-          </h3>
-          <span className="text-[0.75rem] text-[var(--color-ink-muted)]">
-            ©{" "}
-            <a
-              href="https://www.openstreetmap.org/copyright"
-              target="_blank"
-              rel="noreferrer"
-              className="underline"
-            >
-              OpenStreetMap contributors
-            </a>
-          </span>
+      <div className="grid border-t border-[var(--color-line)] lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.85fr)]">
+        <div className="relative overflow-hidden border-b border-[var(--color-line)] bg-[var(--color-sunken)] lg:border-b-0 lg:border-r">
+          {placeForMap ? (
+            <div className="relative">
+              <Suspense
+                fallback={
+                  <div className="grid h-64 place-items-center text-[0.875rem] text-[var(--color-ink-muted)] sm:h-80">
+                    Loading map…
+                  </div>
+                }
+              >
+                <NearbyMap
+                  center={placeForMap}
+                  mapCenter={mapCenter}
+                  places={places}
+                  selectedPlace={selectedPlace}
+                  onSelectPlace={setSelectedPlace}
+                  label={`Map showing ${currentService.label.toLowerCase()} near ${mapCenter?.label ?? "the selected place"}`}
+                />
+              </Suspense>
+              <a
+                href={openStreetMapUrl(
+                  placeForMap.latitude,
+                  placeForMap.longitude,
+                )}
+                target="_blank"
+                rel="noreferrer"
+                className="absolute bottom-3 left-3 z-[1000] rounded-[var(--radius-sm)] bg-[var(--color-surface)] px-3 py-2 text-[0.8rem] font-bold text-[var(--color-primary-ink)] shadow-2"
+              >
+                Open full map
+              </a>
+            </div>
+          ) : (
+            <div className="grid h-64 place-items-center px-6 text-center text-[0.875rem] text-[var(--color-ink-muted)] sm:h-80">
+              {searching
+                ? "Finding this location on the map…"
+                : "Search a location to load the map."}
+            </div>
+          )}
         </div>
+
+        <div className="min-w-0 p-4 sm:p-5">
+          <div className="mb-3">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-h4">
+                Nearby {currentService.label.toLowerCase()}
+              </h3>
+              {places.length > 0 && (
+                <span className="rounded-[var(--radius-pill)] bg-[var(--color-sunken)] px-2.5 py-1 text-xs font-semibold text-[var(--color-ink-muted)]">
+                  {places.length} places
+                </span>
+              )}
+            </div>
+            <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
+              Select a place to focus the map.
+            </p>
+          </div>
         {searchError && (
           <div
             className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-sm)] bg-[var(--color-error-tint)] p-3 text-[0.875rem] text-[var(--color-error)]"
@@ -453,7 +594,7 @@ export function NearbyGuide({
             )}
           </div>
         )}
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid max-h-80 gap-2 overflow-y-auto pr-1">
           {places.map((place) => (
             <button
               key={place.id}
@@ -483,10 +624,15 @@ export function NearbyGuide({
                   </span>
                 )}
               </span>
+              <span className="shrink-0 text-xs font-bold text-[var(--color-primary-ink)]">
+                Details
+              </span>
             </button>
           ))}
         </div>
-        <p className="mt-3 text-[0.75rem] text-[var(--color-ink-muted)]">
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 border-t border-[var(--color-line)] px-4 py-3 text-[0.75rem] text-[var(--color-ink-muted)] sm:px-5">
           Map tiles by{" "}
           <a
             href="https://openfreemap.org/"
@@ -515,29 +661,289 @@ export function NearbyGuide({
           >
             OpenStreetMap contributors
           </a>
-          . Results depend on local map coverage.
-        </p>
-        <Link
-          to={
-            service === "flights"
-              ? "/app/flights"
-              : service === "hotels"
-                ? "/app/hotels"
-                : service === "restaurants"
-                  ? "/app/food"
-                  : service === "rides"
-                    ? "/app/rides"
-                    : "/app/catering"
-          }
-          className="mt-4 inline-flex rounded-[var(--radius-sm)] bg-[var(--color-primary)] px-4 py-2.5 text-[0.875rem] font-semibold text-[var(--color-on-primary)] hover:bg-[var(--color-primary-hover)]"
-        >
-          {service === "flights"
-            ? "Compare airline flights"
-            : service === "venues"
-              ? "Browse event venues"
-              : `Browse ${currentService.label.toLowerCase()}`}
-        </Link>
+          . Results and photos depend on local map coverage.
       </div>
+      {selectedPlace && (
+        <dialog
+          open
+          aria-modal="true"
+          aria-labelledby="nearby-place-title"
+          className="fixed inset-0 z-[1200] m-0 flex h-full max-h-none w-full max-w-none items-center justify-center overflow-y-auto bg-black/60 p-3 backdrop-blur-sm sm:p-6"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setSelectedPlace(null);
+            }
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") setSelectedPlace(null);
+          }}
+        >
+          <div className="my-auto grid max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[var(--radius-lg)] border border-[var(--color-line)] bg-[var(--color-surface)] shadow-3 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.9fr)]">
+            <div className="relative min-h-56 bg-[var(--color-sunken)] sm:min-h-72">
+              {selectedPlace.imageUrl && !imageFailed ? (
+                <img
+                  src={selectedPlace.imageUrl}
+                  alt={`Community map photo of ${selectedPlace.name}`}
+                  className="h-full min-h-56 w-full object-cover sm:min-h-72"
+                  referrerPolicy="no-referrer"
+                  onError={() => setImageFailed(true)}
+                />
+              ) : (
+                <div className="grid min-h-56 place-items-center p-8 text-center text-sm text-[var(--color-ink-muted)] sm:min-h-72">
+                  <div>
+                    <MapPin
+                      size={38}
+                      weight="duotone"
+                      className="mx-auto mb-2 text-[var(--color-primary-ink)]"
+                    />
+                    No community photo is available in the map data for this place.
+                  </div>
+                </div>
+              )}
+              {selectedPlace.imageCreditUrl && selectedPlace.imageUrl && (
+                <a
+                  href={selectedPlace.imageCreditUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="absolute bottom-3 left-3 rounded bg-black/65 px-2 py-1 text-xs font-semibold text-white underline"
+                >
+                  Photo source
+                </a>
+              )}
+            </div>
+
+            <div className="p-5 sm:p-7">
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[0.7rem] font-bold uppercase tracking-[0.12em] text-[var(--color-primary-ink)]">
+                    {currentService.label} · {formatDistance(selectedPlace.distanceMeters)}
+                  </p>
+                  <h2 id="nearby-place-title" className="text-h2 mt-1">
+                    {selectedPlace.name}
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  autoFocus
+                  aria-label="Close place details"
+                  onClick={() => setSelectedPlace(null)}
+                  className="rounded-full p-2 text-[var(--color-ink-muted)] hover:bg-[var(--color-sunken)]"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {selectedPlace.description && (
+                <p className="mb-3 text-sm text-[var(--color-ink-muted)]">
+                  {selectedPlace.description}
+                </p>
+              )}
+              <dl className="grid gap-2 text-sm text-[var(--color-ink-muted)]">
+                {selectedPlace.address && (
+                  <div className="flex items-start gap-2">
+                    <MapPin size={17} className="mt-0.5 shrink-0" />
+                    <dd>{selectedPlace.address}</dd>
+                  </div>
+                )}
+                {selectedPlace.openingHours && (
+                  <div className="flex items-start gap-2">
+                    <Clock size={17} className="mt-0.5 shrink-0" />
+                    <dd>{selectedPlace.openingHours}</dd>
+                  </div>
+                )}
+                {selectedPlace.phone && (
+                  <div className="flex items-start gap-2">
+                    <Phone size={17} className="mt-0.5 shrink-0" />
+                    <dd>
+                      <a className="underline" href={`tel:${selectedPlace.phone}`}>
+                        {selectedPlace.phone}
+                      </a>
+                    </dd>
+                  </div>
+                )}
+                {selectedPlace.website && (
+                  <div className="flex items-start gap-2">
+                    <GlobeHemisphereWest size={17} className="mt-0.5 shrink-0" />
+                    <dd>
+                      <a
+                        className="underline"
+                        href={selectedPlace.website}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Visit website
+                      </a>
+                    </dd>
+                  </div>
+                )}
+              </dl>
+
+              {service === "flights" ? (
+                <div className="mt-5 border-t border-[var(--color-line)] pt-4">
+                  <p className="text-sm text-[var(--color-ink-muted)]">
+                    Airports help you choose a departure point. Flight options
+                    and dates are set in the flight search form.
+                  </p>
+                  {onAirportSelect && (
+                    <Button
+                      className="mt-3 w-full"
+                      onClick={() => {
+                        onAirportSelect(selectedPlace);
+                        setSelectedPlace(null);
+                      }}
+                    >
+                      Use as departure airport
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="mt-5 border-t border-[var(--color-line)] pt-4">
+                  <h3 className="text-h4">Add a booking request</h3>
+                  <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
+                    This adds the place to your trip draft. It does not contact
+                    the business or confirm availability.
+                  </p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label
+                        className="mb-1 flex items-center gap-1 text-xs font-semibold"
+                        htmlFor="nearby-booking-date"
+                      >
+                        <CalendarBlank size={14} />
+                        {service === "hotels" ? "Check in" : "Date"}
+                      </label>
+                      <Input
+                        id="nearby-booking-date"
+                        type="date"
+                        value={bookingDate}
+                        min={trip ? dateFieldValue(trip.startDateISO) : undefined}
+                        max={tripLastDay}
+                        onChange={(event) => setBookingDate(event.target.value)}
+                      />
+                    </div>
+                    {service === "hotels" ? (
+                      <div>
+                        <label
+                          className="mb-1 flex items-center gap-1 text-xs font-semibold"
+                          htmlFor="nearby-booking-checkout"
+                        >
+                          <CalendarBlank size={14} />
+                          Check out
+                        </label>
+                        <Input
+                          id="nearby-booking-checkout"
+                          type="date"
+                          value={bookingEndDate}
+                          min={bookingDate}
+                          max={hotelCheckoutDate}
+                          onChange={(event) =>
+                            setBookingEndDate(event.target.value)
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div>
+                        <label
+                          className="mb-1 flex items-center gap-1 text-xs font-semibold"
+                          htmlFor="nearby-booking-time"
+                        >
+                          <Clock size={14} />
+                          Time
+                        </label>
+                        <Input
+                          id="nearby-booking-time"
+                          type="time"
+                          value={bookingTime}
+                          onChange={(event) => setBookingTime(event.target.value)}
+                        />
+                      </div>
+                    )}
+                    {service === "restaurants" && (
+                      <div>
+                        <label
+                          className="mb-1 block text-xs font-semibold"
+                          htmlFor="nearby-booking-mode"
+                        >
+                          Dining option
+                        </label>
+                        <select
+                          id="nearby-booking-mode"
+                          value={bookingMode}
+                          onChange={(event) =>
+                            setBookingMode(
+                              event.target.value as
+                                | "reserve"
+                                | "pickup"
+                                | "delivery",
+                            )
+                          }
+                          className="h-11 w-full rounded-[var(--radius-sm)] border border-[var(--color-line-strong)] bg-[var(--color-canvas)] px-3 text-sm"
+                        >
+                          <option value="reserve">Reserve a table</option>
+                          <option value="pickup">Pickup</option>
+                          <option value="delivery">Delivery</option>
+                        </select>
+                      </div>
+                    )}
+                    {(service === "restaurants" ||
+                      service === "hotels" ||
+                      service === "catering" ||
+                      service === "venues") && (
+                      <div>
+                        <label
+                          className="mb-1 flex items-center gap-1 text-xs font-semibold"
+                          htmlFor="nearby-booking-party"
+                        >
+                          <Users size={14} />
+                          {service === "hotels" ? "Guests" : "People"}
+                        </label>
+                        <Input
+                          id="nearby-booking-party"
+                          type="number"
+                          min={1}
+                          max={200}
+                          value={partySize}
+                          onChange={(event) =>
+                            setPartySize(Number(event.target.value))
+                          }
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-3 text-xs text-[var(--color-ink-muted)]">
+                    Price and availability are not supplied by the map. Confirm
+                    details directly with the business.
+                  </p>
+                  {hasActivePlan ? (
+                    <Button
+                      className="mt-4 w-full"
+                      onClick={addPlaceBooking}
+                      disabled={
+                        !bookingDate ||
+                        (service === "hotels"
+                          ? !bookingEndDate || bookingEndDate <= bookingDate
+                          : !bookingTime) ||
+                        !Number.isFinite(partySize) ||
+                        partySize < 1
+                      }
+                    >
+                      <CheckCircle size={17} weight="bold" />
+                      Add request to {plan?.name ?? "trip"}
+                    </Button>
+                  ) : (
+                    <Link
+                      to="/app/trips?start=1"
+                      className="mt-4 inline-flex w-full justify-center rounded-[var(--radius-sm)] bg-[var(--color-primary)] px-4 py-3 text-sm font-bold text-[var(--color-on-primary)] hover:bg-[var(--color-primary-hover)]"
+                    >
+                      Start a trip to add this place
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </dialog>
+      )}
     </section>
   );
 }

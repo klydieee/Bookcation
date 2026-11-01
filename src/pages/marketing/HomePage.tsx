@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import {
   AirplaneTilt,
   Bed,
@@ -85,7 +84,6 @@ const TRUST: { icon: Icon; heading: string; body: string }[] = [
   },
 ];
 
-const PLATFORMS = ["Web", "macOS", "Windows", "Linux", "Android", "iOS"];
 const SERVICE_PROVIDERS = [
   { group: "Airlines", names: ["Cebu Pacific", "Philippine Airlines", "AirAsia Philippines"] },
   { group: "Rides", names: ["Grab", "Uber"] },
@@ -95,109 +93,113 @@ const SERVICE_PROVIDERS = [
 export function HomePage() {
   return (
     <main>
-      {/* Hero: split with bleed (03 §10.1 option A) */}
-      <section className="relative mx-auto grid max-w-[1200px] items-center gap-10 px-4 py-20 lg:grid-cols-12 lg:px-6 lg:py-28">
-        {/* soft background light */}
+      <section className="relative mx-auto grid max-w-7xl items-center gap-8 px-5 py-12 sm:px-8 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-12 lg:py-16">
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-10 right-0 -z-10 h-[420px] w-[420px] rounded-full opacity-50 blur-3xl"
+          className="pointer-events-none absolute -top-10 right-0 -z-10 h-[360px] w-[360px] rounded-full opacity-40 blur-3xl"
           style={{
             background:
               "radial-gradient(circle, color-mix(in srgb, var(--color-primary) 30%, transparent), transparent 70%)",
           }}
         />
-        <div className="lg:col-span-5">
-          <span className="mb-4 inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-1 text-[0.8rem] font-semibold text-[var(--color-ink-muted)]">
+        <div className="max-w-xl">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-1 text-xs font-semibold text-[var(--color-ink-muted)]">
             <GitFork size={14} weight="bold" className="text-[var(--color-primary-ink)]" />
             Plan versions, built in
           </span>
-          <h1 className="text-display-xl">
+          <h1 className="text-display-lg max-w-[14ch]">
             Every trip deserves a second draft.
           </h1>
-          <p className="text-body-lg mt-5 max-w-[56ch] text-[var(--color-ink-muted)]">
-            Bookcation brings flights, stays, restaurant meals, catering, and
-            rides together on one canvas. Compare options, adjust the plan, and
-            review the total before checkout.
+          <p className="text-body-lg mt-4 max-w-[48ch] text-[var(--color-ink-muted)]">
+            Bring flights, stays, meals, catering, and rides into one clear plan.
+            Compare options and review the total before checkout.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <TripStartLink>
               <Button glow>Start a trip</Button>
             </TripStartLink>
-            <a href="#fork">
-              <Button variant="secondary">See how plans work</Button>
+            <a href="#how-it-works">
+              <Button variant="secondary">How it works</Button>
             </a>
           </div>
         </div>
-        <div className="lg:col-span-7">
+        <div className="min-w-0">
           <HeroCanvas />
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-4 pb-10 lg:px-6">
-        <div className="rounded-[var(--radius-lg)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 lg:p-8">
-          <h2 className="text-h2">Providers Filipino travelers may recognize</h2>
-          <p className="mt-2 max-w-[70ch] text-[0.875rem] text-[var(--color-ink-muted)]">
-            These names help you plan around familiar services. This preview does not have live inventory or booking integrations, and it does not claim formal partnerships.
-          </p>
-          <div className="mt-6 grid gap-5 md:grid-cols-3">
-            {SERVICE_PROVIDERS.map((provider) => (
-              <div key={provider.group}>
-                <h3 className="text-h4">{provider.group}</h3>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {provider.names.map((name) => (
-                    <span
-                      key={name}
-                      className="rounded-[var(--radius-pill)] border border-[var(--color-line)] bg-[var(--color-canvas)] px-3 py-1.5 text-[0.875rem] font-semibold"
-                    >
-                      {name}
-                    </span>
-                  ))}
+      <section className="mx-auto max-w-7xl px-5 pb-8 sm:px-8">
+        <div className="rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[var(--color-surface)] px-5 py-5 sm:px-7">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-sm">
+              <h2 className="text-h3">Services to plan around</h2>
+              <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
+                Familiar options, shown for planning only—not formal partners or live bookings.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3 lg:flex lg:gap-8">
+              {SERVICE_PROVIDERS.map((provider) => (
+                <div key={provider.group} className="min-w-0">
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-[var(--color-ink-muted)]">
+                    {provider.group}
+                  </h3>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {provider.names.map((name) => (
+                      <span
+                        key={name}
+                        className="rounded-[var(--radius-pill)] bg-[var(--color-canvas)] px-2.5 py-1 text-xs font-semibold"
+                      >
+                        {name}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* One plan for the whole trip */}
-      <section className="mx-auto max-w-[1200px] px-4 py-20 lg:px-6">
-        <h2 className="text-display-lg max-w-[20ch]">
-          One plan for the whole trip
-        </h2>
-        <p className="text-body-lg mt-4 max-w-[64ch] text-[var(--color-ink-muted)]">
-          Flights, tables, and catering sit side by side on a day-by-day canvas.
-          Add from search, drag between days, and Bookcation flags anything that
-          clashes, like a dinner booked while you are still in the air.
-        </p>
-
-        {/* Modules — spotlight + reveal-border cards, each with its own hue */}
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
+      <section className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:py-16">
+        <div className="max-w-2xl">
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-primary-ink)]">
+            One plan, day by day
+          </p>
+          <h2 className="text-display-lg max-w-[20ch]">
+            The pieces of your trip, together.
+          </h2>
+          <p className="text-body-lg mt-3 max-w-[58ch] text-[var(--color-ink-muted)]">
+            Keep the essentials in one canvas, then adjust the details as your plans change.
+          </p>
+        </div>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {MODULES.map((m, i) => {
             const IconCmp = m.icon;
             return (
               <Reveal
                 key={m.heading}
                 delay={i * 70}
-                className={i === 0 ? "md:col-span-2" : ""}
               >
                 <Surface
                   effect={["spotlight", "reveal-border"]}
                   radius="md"
                   lift
-                  className="h-full p-6"
+                  className="h-full p-5"
                 >
                   <span
-                    className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-[var(--radius-sm)]"
+                    className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)]"
                     style={{ background: `var(--color-${m.color}-tint)` }}
                   >
                     <IconCmp
-                      size={24}
+                      size={22}
                       weight="duotone"
                       style={{ color: `var(--color-${m.color}-ink)` }}
                     />
                   </span>
-                  <h3 className="text-h2">{m.heading}</h3>
-                  <p className="mt-2 text-[var(--color-ink-muted)]">{m.body}</p>
+                  <h3 className="text-h3">{m.heading}</h3>
+                  <p className="mt-1.5 text-sm leading-6 text-[var(--color-ink-muted)]">
+                    {m.body}
+                  </p>
                 </Surface>
               </Reveal>
             );
@@ -205,44 +207,21 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Gate to plate — acrylic band over a colored field */}
-      <section className="mx-auto max-w-[1200px] px-4 py-10 lg:px-6">
-        <div
-          className="relative overflow-hidden geo p-[1px]"
-          style={{
-            background:
-              "linear-gradient(135deg, var(--color-primary), var(--color-trip))",
-          }}
-        >
-          <Surface
-            material="acrylic"
-            radius="lg"
-            depth={3}
-            className="flex flex-col items-start gap-4 p-8 lg:flex-row lg:items-center lg:justify-between lg:p-12"
-          >
-            <div>
-              <h2 className="text-display-lg">Land with a table waiting</h2>
-              <p className="text-body-lg mt-3 max-w-[52ch] text-[var(--color-ink-muted)]">
-                Landing at 6:40 pm? Bookcation lists restaurants open when you
-                arrive and still taking reservations, so dinner is sorted before
-                baggage claim.
-              </p>
-            </div>
-            <Link to="/app/food" className="shrink-0">
-              <Button variant="secondary">Browse food</Button>
-            </Link>
-          </Surface>
+      <section
+        id="how-it-works"
+        className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:py-16"
+      >
+        <div className="max-w-2xl">
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-primary-ink)]">
+            A simple flow
+          </p>
+          <h2 className="text-display-lg">Draft it. Fork it. Book it.</h2>
+          <p className="text-body-lg mt-3 max-w-[58ch] text-[var(--color-ink-muted)]">
+            Start with a plan. Fork it to try a cheaper flight or a nicer dinner.
+            Compare the two and keep the one you like.
+          </p>
         </div>
-      </section>
-
-      {/* Draft, fork, compare, book — a true sequence */}
-      <section id="fork" className="mx-auto max-w-[1200px] px-4 py-20 lg:px-6">
-        <h2 className="text-display-lg">Draft it. Fork it. Book it.</h2>
-        <p className="text-body-lg mt-4 max-w-[64ch] text-[var(--color-ink-muted)]">
-          Start with a plan. Fork it to try a cheaper flight or a nicer dinner.
-          Compare the two and keep the one you like.
-        </p>
-        <ol className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((s, i) => (
             <Reveal as="li" key={s.n} delay={i * 90}>
               <Surface
@@ -263,12 +242,14 @@ export function HomePage() {
         </ol>
       </section>
 
-      {/* Why you can trust the preview (no fabricated proof, per 02 §8) */}
-      <section className="mx-auto max-w-[1200px] px-4 py-20 lg:px-6">
-        <h2 className="text-display-lg max-w-[22ch]">
-          Honest about what this preview does
-        </h2>
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
+      <section className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:py-16">
+        <div className="max-w-2xl">
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-primary-ink)]">
+            Built for clear planning
+          </p>
+          <h2 className="text-display-lg max-w-[22ch]">Know what to expect.</h2>
+        </div>
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
           {TRUST.map((t, i) => {
             const IconCmp = t.icon;
             return (
@@ -277,15 +258,17 @@ export function HomePage() {
                   effect="reveal-border"
                   radius="md"
                   lift
-                  className="h-full p-6"
+                  className="h-full p-5"
                 >
                   <IconCmp
                     size={28}
                     weight="duotone"
                     className="text-[var(--color-primary-ink)]"
                   />
-                  <h3 className="text-h3 mt-3">{t.heading}</h3>
-                  <p className="mt-2 text-[var(--color-ink-muted)]">{t.body}</p>
+                  <h3 className="text-h4 mt-3">{t.heading}</h3>
+                  <p className="mt-1.5 text-sm leading-6 text-[var(--color-ink-muted)]">
+                    {t.body}
+                  </p>
                 </Surface>
               </Reveal>
             );
@@ -293,35 +276,8 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Platforms — mica chips */}
-      <section className="mx-auto max-w-[1200px] px-4 py-20 lg:px-6">
-        <h2 className="text-display-lg max-w-[22ch]">
-          On every screen you plan from
-        </h2>
-        <p className="text-body-lg mt-4 max-w-[64ch] text-[var(--color-ink-muted)]">
-          Use Bookcation in your browser, on macOS and Windows, or on iOS and
-          Android. In this preview your plans stay on your device.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          {PLATFORMS.map((p) => (
-            <span
-              key={p}
-              className="mica geo-md press border border-[var(--color-line)] px-5 py-2.5 text-[0.95rem] font-semibold"
-            >
-              {p}
-            </span>
-          ))}
-          <Link to="/download">
-            <Button variant="ghost" size="sm" className="h-full">
-              See downloads
-            </Button>
-          </Link>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="mx-auto max-w-[800px] px-4 py-20 lg:px-6">
-        <h2 className="text-display-lg mb-6">Questions</h2>
+      <section className="mx-auto max-w-3xl px-5 py-14 sm:px-8 lg:py-16">
+        <h2 className="text-display-lg mb-6">Questions, answered.</h2>
         <div className="flex flex-col gap-2">
           {FAQ.map((item) => (
             <FaqItem key={item.q} q={item.q} a={item.a} />
@@ -329,18 +285,21 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Final CTA — the only centered block, on a glowing acrylic card */}
-      <section className="mx-auto max-w-[900px] px-4 py-24 lg:px-6">
+      <section className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:py-16">
         <Surface
           material="mica"
-          radius="lg"
-          depth={3}
-          effect="glow"
-          className="flex flex-col items-center gap-6 p-12 text-center"
+          radius="md"
+          depth={2}
+          className="flex flex-col items-start justify-between gap-5 p-6 sm:flex-row sm:items-center sm:p-8"
         >
-          <h2 className="text-display-lg">Your next trip starts as a draft.</h2>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-primary-ink)]">
+              Ready when you are
+            </p>
+            <h2 className="text-h2 mt-1">Your next trip starts as a draft.</h2>
+          </div>
           <TripStartLink>
-            <Button glow>Start a trip</Button>
+            <Button>Start a trip</Button>
           </TripStartLink>
         </Surface>
       </section>
@@ -366,12 +325,8 @@ const FAQ = [
     a: "Add travelers at checkout, and use catering to compare quotes by headcount.",
   },
   {
-    q: "Which devices does it run on?",
-    a: "Any current browser, macOS, Windows, Android, and iOS through TestFlight or the App Store.",
-  },
-  {
     q: "Does it work offline?",
-    a: "You can open and edit saved plans without a connection.",
+    a: "You can open and edit saved plans without a connection. Plans are stored on this device.",
   },
   {
     q: "When does Bookcation use my location?",

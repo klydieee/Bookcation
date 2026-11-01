@@ -3,7 +3,7 @@ import type { FlightOffer } from "@/lib/types";
 import { Ticket } from "@/components/ui/Ticket";
 import { ModuleBadge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { money, timeOf, duration } from "@/lib/format";
+import { money, timeOf, duration, dateShort } from "@/lib/format";
 import { usePrefs } from "@/store/prefsStore";
 
 export function FlightTicket({
@@ -60,6 +60,12 @@ export function FlightTicket({
           <div className="text-[0.875rem] text-[var(--color-ink-muted)]">
             {duration(offer.durationMin)} · {stops} · {offer.cabin}
           </div>
+          {offer.returnDepartISO && (
+            <div className="border-t border-dashed border-[var(--color-line)] pt-2 text-[0.8rem] text-[var(--color-ink-muted)]">
+              Return {dateShort(offer.returnDepartISO)} ·{" "}
+              {timeOf(offer.returnDepartISO)} {offer.to.code} → {offer.from.code}
+            </div>
+          )}
         </div>
       }
       stub={

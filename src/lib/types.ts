@@ -1,5 +1,7 @@
 // Domain model. Terms follow 01_PRODUCT_BRIEF §9 (glossary).
 
+import type { NearbyCategory, NearbyPlace } from "./nearby-types";
+
 export type ModuleId = "flight" | "food" | "catering" | "stay" | "trip";
 
 export type Currency = "PHP" | "USD" | "EUR" | "GBP";
@@ -9,6 +11,8 @@ export interface Airport {
   code: string; // IATA, e.g. "JFK"
   city: string;
   name: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface FlightSegment {
@@ -33,6 +37,8 @@ export interface FlightOffer {
   price: number; // per traveler
   cabin: "Economy" | "Premium" | "Business";
   tripType: "one-way" | "round trip";
+  returnDepartISO?: string;
+  returnArriveISO?: string;
 }
 
 // ---- Food ----
@@ -138,6 +144,7 @@ export type PlanItemKind =
   | "stay"
   | "catering"
   | "ride"
+  | "place"
   | "note";
 
 export interface PlanItemBase {
@@ -174,6 +181,21 @@ export interface RidePlanItem extends PlanItemBase {
   ride: RideReservation;
 }
 
+export interface PlaceBooking {
+  service: NearbyCategory;
+  place: NearbyPlace;
+  dateISO: string;
+  timeISO: string;
+  endDateISO?: string;
+  partySize: number;
+  mode?: "reserve" | "pickup" | "delivery";
+}
+
+export interface PlacePlanItem extends PlanItemBase {
+  kind: "place";
+  placeBooking: PlaceBooking;
+}
+
 export interface NotePlanItem extends PlanItemBase {
   kind: "note";
   note: string;
@@ -185,6 +207,7 @@ export type PlanItem =
   | StayPlanItem
   | CateringPlanItem
   | RidePlanItem
+  | PlacePlanItem
   | NotePlanItem;
 
 // ---- Trips and plans ----
@@ -210,6 +233,8 @@ export interface Trip {
 // ---- Bookings ----
 export interface Booking {
   id: string;
+  tripId?: string;
+  planId?: string;
   reference: string;
   tripName: string;
   planName: string;

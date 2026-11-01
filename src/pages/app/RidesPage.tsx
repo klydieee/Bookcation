@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Car, CheckCircle, MapPin } from "@phosphor-icons/react";
 import { PageHeader } from "@/components/PageHeader";
+import { NearbyGuide } from "@/components/NearbyGuide";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, Select } from "@/components/ui/Field";
 import { useAddToPlan } from "@/store/useAddToPlan";
@@ -24,31 +26,70 @@ function localDateAndTime(iso: string): [string, string] {
   return [localISO.slice(0, 10), localISO.slice(11, 16)];
 }
 
+function hotelLocationForDay(
+  items: PlanItem[],
+  dayIndex: number,
+  city: string,
+): string {
+  const hotels = items.filter(
+    (item) =>
+      item.kind === "stay" ||
+      (item.kind === "place" && item.placeBooking.service === "hotels"),
+  );
+  const hotel = hotels.sort(
+    (first, second) =>
+      Math.abs(first.dayIndex - dayIndex) - Math.abs(second.dayIndex - dayIndex),
+  )[0];
+  if (!hotel) return `${city} city center`;
+  if (hotel.kind === "stay") {
+    return `${hotel.stay.hotelName}, ${city}`;
+  }
+  if (hotel.kind === "place") {
+    return hotel.placeBooking.place.address || hotel.placeBooking.place.name;
+  }
+  return `${city} city center`;
+}
+
 function suggestionsFromPlan(items: PlanItem[], city: string): RideSuggestion[] {
-  const hotel = items.find((item) => item.kind === "stay");
   return items.flatMap((item) => {
-    if (item.kind === "reservation") {
+    if (
+      item.kind === "reservation" ||
+      (item.kind === "place" &&
+        item.placeBooking.service === "restaurants")
+    ) {
+      const restaurantName =
+        item.kind === "reservation"
+          ? item.reservation.restaurantName
+          : item.placeBooking.place.name;
+      const reservationTime =
+        item.kind === "reservation"
+          ? item.reservation.timeISO
+          : item.placeBooking.timeISO;
+      const restaurantLocation =
+        item.kind === "place"
+          ? item.placeBooking.place.address || restaurantName
+          : restaurantName;
       return [
         {
-          label: `Ride to ${item.reservation.restaurantName}`,
-          from: hotel?.kind === "stay" ? hotel.stay.hotelName : `${city} city center`,
-          to: item.reservation.restaurantName,
+          label: `Ride to ${restaurantName}`,
+          from: hotelLocationForDay(items, item.dayIndex, city),
+          to: restaurantLocation,
           timeISO: new Date(
-            new Date(item.reservation.timeISO).getTime() - 30 * 60000,
+            new Date(reservationTime).getTime() - 30 * 60000,
           ).toISOString(),
           dayIndex: item.dayIndex,
         },
       ];
     }
     if (item.kind === "flight") {
+      const hotelLocation = hotelLocationForDay(items, item.dayIndex, city);
       return [
         {
           label: `Airport ride for ${item.offer.airline}`,
           from: `${item.offer.to.city} airport`,
-          to:
-            hotel?.kind === "stay"
-              ? hotel.stay.hotelName
-              : `${item.offer.to.city} city center`,
+          to: hotelLocation === `${city} city center`
+            ? `${item.offer.to.city} city center`
+            : hotelLocation,
           timeISO: new Date(
             new Date(item.offer.arriveISO).getTime() + 45 * 60000,
           ).toISOString(),
@@ -62,6 +103,10 @@ function suggestionsFromPlan(items: PlanItem[], city: string): RideSuggestion[] 
 
 export function RidesPage() {
   const { add, trip, plan } = useAddToPlan();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const guideTripId = searchParams.get("guide");
+  const guideStep = Number(searchParams.get("step"));
   const [provider, setProvider] = useState<RideProvider>("Grab");
   const [from, setFrom] = useState(
     trip ? `${trip.destinationCity} Airport` : "Airport",
@@ -109,6 +154,9 @@ export function RidesPage() {
         title="Rides"
         subtitle="Schedule airport, hotel, and restaurant rides alongside your trip."
       />
+      <div className="p-4 lg:p-8">
+        <NearbyGuide city={trip?.destinationCity ?? ""} initialService="rides" />
+      </div>
       <div className="mx-auto max-w-3xl p-4 lg:p-8">
         <div className="mb-5 rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 shadow-2">
           <div className="mb-4 flex items-center gap-3">
@@ -137,7 +185,8 @@ export function RidesPage() {
                     variant="secondary"
                     onClick={() => chooseSuggestion(suggestion)}
                   >
-                    {suggestion.label} · Day {suggestion.dayIndex + 1}
+                    {suggestion.label} · Day {suggestion.dayIndex + 1} ·{" "}
+                    {localDateAndTime(suggestion.timeISO)[1]}
                   </Button>
                 ))}
               </div>
@@ -210,9 +259,23 @@ export function RidesPage() {
             <p className="text-[0.875rem] text-[var(--color-ink-muted)]">
               Sample estimate: ₱{provider === "Grab" ? "450" : "500"}. Confirm availability and fare in the provider app.
             </p>
-            <Button onClick={addRide} disabled={!from.trim() || !to.trim()}>
-              Add ride to plan
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              {guideTripId && guideStep === 4 && (
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    navigate(
+                      `/app/guide/${guideTripId}?step=5&status=skipped&service=ride`,
+                    )
+                  }
+                >
+                  Skip rides — I’ll commute
+                </Button>
+              )}
+              <Button onClick={addRide} disabled={!from.trim() || !to.trim()}>
+                Add ride to plan
+              </Button>
+            </div>
           </div>
           {added && (
             <p

@@ -39,6 +39,7 @@ interface TripState {
   ) => void;
 
   checkout: (tripId: string, planId: string) => string;
+  deleteBooking: (bookingId: string) => void;
   resetDemo: () => void;
 }
 
@@ -80,6 +81,7 @@ export const useTrips = create<TripState>()(
       deleteTrip: (tripId) =>
         set((s) => ({
           trips: s.trips.filter((t) => t.id !== tripId),
+          bookings: s.bookings.filter((booking) => booking.tripId !== tripId),
           activeTripId:
             s.activeTripId === tripId ? null : s.activeTripId,
         })),
@@ -198,6 +200,8 @@ export const useTrips = create<TripState>()(
         if (!trip || !plan) return "";
         const booking: Booking = {
           id: uid("bk"),
+          tripId,
+          planId,
           reference: bookingRef(),
           tripName: trip.name,
           planName: plan.name,
@@ -208,6 +212,11 @@ export const useTrips = create<TripState>()(
         set((s) => ({ bookings: [booking, ...s.bookings] }));
         return booking.id;
       },
+
+      deleteBooking: (bookingId) =>
+        set((s) => ({
+          bookings: s.bookings.filter((booking) => booking.id !== bookingId),
+        })),
 
       resetDemo: () =>
         set({ trips: [], bookings: [], activeTripId: null }),

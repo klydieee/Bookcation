@@ -14,6 +14,10 @@ export interface NearbyPlace {
   longitude: number;
   address: string;
   distanceMeters: number;
+  imageUrl?: string;
+  imageCreditUrl?: string;
+  description?: string;
+  openingHours?: string;
   website?: string;
   phone?: string;
 }

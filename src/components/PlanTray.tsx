@@ -20,10 +20,10 @@ export function PlanTray() {
 
   if (!trip || !plan) {
     return (
-      <aside className="hidden w-[340px] shrink-0 border-l border-[var(--color-line)] bg-[var(--color-surface)] p-6 xl:block">
+      <aside className="hidden w-[290px] shrink-0 border-l border-[var(--color-line)] bg-[var(--color-surface)] p-5 xl:block">
         <h2 className="text-h2 mb-2">Plan tray</h2>
         <p className="text-[var(--color-ink-muted)]">
-          Start a trip to build a plan. Flights, tables, and catering land here.
+          Start a trip to save flights and nearby service requests here.
         </p>
         <Link to="/app/trips" className="mt-4 inline-block">
           <Button size="sm">Start a trip</Button>
@@ -34,15 +34,31 @@ export function PlanTray() {
 
   const counts = {
     flight: plan.items.filter((i) => i.kind === "flight").length,
-    stay: plan.items.filter((i) => i.kind === "stay").length,
-    food: plan.items.filter((i) => i.kind === "reservation").length,
-    catering: plan.items.filter((i) => i.kind === "catering").length,
-    rides: plan.items.filter((i) => i.kind === "ride").length,
+    stay: plan.items.filter(
+      (i) =>
+        i.kind === "stay" ||
+        (i.kind === "place" && i.placeBooking.service === "hotels"),
+    ).length,
+    food: plan.items.filter(
+      (i) =>
+        i.kind === "reservation" ||
+        (i.kind === "place" && i.placeBooking.service === "restaurants"),
+    ).length,
+    catering: plan.items.filter(
+      (i) =>
+        i.kind === "catering" ||
+        (i.kind === "place" && i.placeBooking.service === "catering"),
+    ).length,
+    rides: plan.items.filter(
+      (i) =>
+        i.kind === "ride" ||
+        (i.kind === "place" && i.placeBooking.service === "rides"),
+    ).length,
   };
   const conflicts = detectConflicts(plan);
 
   return (
-    <aside className="hidden w-[340px] shrink-0 border-l border-[var(--color-line)] bg-[var(--color-surface)] p-6 xl:flex xl:flex-col">
+    <aside className="hidden w-[290px] shrink-0 border-l border-[var(--color-line)] bg-[var(--color-surface)] p-5 xl:flex xl:flex-col">
       <div className="mb-1 text-[0.875rem] text-[var(--color-ink-muted)]">
         {trip.name}
       </div>
@@ -79,6 +95,11 @@ export function PlanTray() {
         value={planTotal(plan)}
         format={(n) => money(n, currency)}
       />
+      {plan.items.some((item) => item.kind === "place") && (
+        <p className="mb-4 text-xs text-[var(--color-ink-muted)]">
+          Place requests have no confirmed price; confirm availability directly.
+        </p>
+      )}
 
       {conflicts.length > 0 && (
         <div className="mb-4 flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--color-warning-tint)] px-3 py-2 text-[0.875rem] text-[var(--color-ink)]">
@@ -87,9 +108,6 @@ export function PlanTray() {
         </div>
       )}
 
-      <Link to={`/app/trips/${trip.id}`} className="mt-auto">
-        <Button className="w-full">Open canvas</Button>
-      </Link>
     </aside>
   );
 }
