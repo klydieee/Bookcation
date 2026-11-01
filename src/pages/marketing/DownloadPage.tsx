@@ -35,9 +35,9 @@ interface DownloadCard {
 }
 
 const GITHUB_RELEASES = "https://github.com/klydieee/Bookcation/releases";
-// Pinned to the exact release tag so URLs are stable and work immediately.
+const RELEASE_PAGE = `${GITHUB_RELEASES}/tag/v2.0.0`;
 const RELEASE_BASE =
-  "https://github.com/klydieee/Bookcation/releases/download/v0.1.0";
+  "https://github.com/klydieee/Bookcation/releases/download/v2.0.0";
 
 const CARDS: DownloadCard[] = [
   {
@@ -45,12 +45,12 @@ const CARDS: DownloadCard[] = [
     heading: "Windows",
     detail: "Windows 10 or later. 64-bit. NSIS installer or MSI package.",
     status: "available",
-    version: "0.1.0",
+    version: "2.0.0",
     size: "2.1 MB",
     primaryLabel: "Download installer (.exe)",
-    href: `${RELEASE_BASE}/Bookcation_0.1.0_x64-setup.exe`,
+    href: `${RELEASE_BASE}/Bookcation_2.0.0_x64-setup.exe`,
     secondaryLabel: "Download .msi instead",
-    secondaryHref: `${RELEASE_BASE}/Bookcation_0.1.0_x64_en-US.msi`,
+    secondaryHref: `${RELEASE_BASE}/Bookcation_2.0.0_x64_en-US.msi`,
   },
   {
     icon: Globe,
@@ -65,7 +65,7 @@ const CARDS: DownloadCard[] = [
     heading: "Android",
     detail: "Direct APK sideload. Allow installs from your browser when prompted.",
     status: "available",
-    version: "0.1.0",
+    version: "2.0.0",
     size: "3.8 MB",
     primaryLabel: "Download APK",
     href: `${RELEASE_BASE}/app-debug.apk`,
@@ -74,17 +74,19 @@ const CARDS: DownloadCard[] = [
     icon: LinuxLogo,
     heading: "Linux",
     detail: "AppImage (all distros) and .deb (Debian / Ubuntu).",
-    status: "building",
-    primaryLabel: "Download for Linux",
-    unavailableReason: "Linux build is running in CI. Check the releases page.",
+    status: "available",
+    version: "2.0.0",
+    primaryLabel: "Browse Linux release assets",
+    href: RELEASE_PAGE,
   },
   {
     icon: AppleLogo,
     heading: "Mac",
-    detail: "macOS 13 or later. Apple silicon and Intel universal binary.",
-    status: "building",
-    primaryLabel: "Download for macOS",
-    unavailableReason: "macOS build is running in CI. Check the releases page.",
+    detail: "macOS 13 or later. Separate Apple silicon and Intel installers.",
+    status: "available",
+    version: "2.0.0",
+    primaryLabel: "Browse macOS release assets",
+    href: RELEASE_PAGE,
   },
   {
     icon: DeviceMobile,
@@ -111,22 +113,18 @@ export function DownloadPage() {
           <CheckCircle size={16} weight="fill" />
           Ready to download
         </span>
-        <span className="flex items-center gap-1.5 text-[var(--color-catering-ink)]">
-          <Clock size={16} weight="fill" />
-          CI building now
-        </span>
         <span className="flex items-center gap-1.5 text-[var(--color-ink-muted)]">
           <Clock size={16} weight="bold" />
           Coming soon
         </span>
       </div>
 
-      {/* CI notice */}
+      {/* Version and release assets */}
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[var(--color-sunken)] px-5 py-4">
         <p className="text-[0.875rem] text-[var(--color-ink-muted)]">
-          The <strong className="text-[var(--color-ink)]">v0.1.0</strong> CI run
-          is building macOS and Linux artifacts right now. Windows and Android
-          are already attached to the release.
+          <strong className="text-[var(--color-ink)]">Version 2.0.0</strong>{" "}
+          builds are available for Windows, macOS, Linux, Android, and web.
+          iOS installation requires Apple signing credentials.
         </p>
         <a
           href={GITHUB_RELEASES}
@@ -253,14 +251,24 @@ function DownloadCardItem({ card: c }: { card: DownloadCard }) {
       )}
 
       <div className="mt-4 flex flex-col gap-2">
-        {/* Available: real download */}
+        {/* Direct download or browse the platform release assets */}
         {c.status === "available" && c.href && (
           <>
-            <DownloadButton
-              href={c.href}
-              label={c.primaryLabel}
-              className="w-full"
-            />
+            {c.href === RELEASE_PAGE ? (
+              <a href={c.href} target="_blank" rel="noopener noreferrer">
+                <Button variant="secondary" className="w-full">
+                  <GithubLogo size={18} weight="bold" />
+                  {c.primaryLabel}
+                  <ArrowSquareOut size={14} />
+                </Button>
+              </a>
+            ) : (
+              <DownloadButton
+                href={c.href}
+                label={c.primaryLabel}
+                className="w-full"
+              />
+            )}
             {c.secondaryLabel && c.secondaryHref && (
               <DownloadButton
                 href={c.secondaryHref}

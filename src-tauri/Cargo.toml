@@ -1,6 +1,6 @@
 [package]
 name = "bookcation"
-version = "0.1.0"
+version = "2.0.0"
 description = "Bookcation — flights, food, and catering on one trip plan"
 authors = ["Bookcation"]
 edition = "2021"
