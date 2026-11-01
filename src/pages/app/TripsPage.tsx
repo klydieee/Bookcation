@@ -9,6 +9,7 @@ import { Input, Label, Select } from "@/components/ui/Field";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/PageHeader";
+import { TripRouteAnimation } from "@/components/TripRouteAnimation";
 import { AIRPORTS } from "@/lib/mock-data";
 
 export function TripsPage() {
@@ -21,8 +22,8 @@ export function TripsPage() {
   const [open, setOpen] = useState(params.get("start") === "1");
 
   const cities = [...new Set(AIRPORTS.map((a) => a.city))];
-  const [name, setName] = useState("Lisbon getaway");
-  const [city, setCity] = useState("Lisbon");
+  const [name, setName] = useState("My trip");
+  const [city, setCity] = useState("");
   const [start, setStart] = useState(() =>
     new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10),
   );
@@ -30,6 +31,7 @@ export function TripsPage() {
   const [travelers, setTravelers] = useState(2);
 
   function submit() {
+    if (!city) return;
     const id = createTrip({
       name,
       destinationCity: city,
@@ -38,7 +40,7 @@ export function TripsPage() {
       travelers,
     });
     setOpen(false);
-    navigate(`/app/trips/${id}`);
+    navigate(`/app/guide/${id}`);
   }
 
   return (
@@ -56,7 +58,11 @@ export function TripsPage() {
       <div className="p-4 lg:p-8">
         {open && (
           <Card className="enter-up mb-6 p-5">
-            <h2 className="text-h2 mb-4">Start a trip</h2>
+            <TripRouteAnimation />
+            <h2 className="text-h2 mb-2">Start a trip</h2>
+            <p className="mb-4 text-[0.875rem] text-[var(--color-ink-muted)]">
+              Bookcation will guide you through flights, stays, food, catering, and rides.
+            </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <Label htmlFor="tname">Trip name</Label>
@@ -73,6 +79,7 @@ export function TripsPage() {
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                 >
+                  <option value="">Choose a destination</option>
                   {cities.map((c) => (
                     <option key={c} value={c}>
                       {c}
@@ -113,7 +120,9 @@ export function TripsPage() {
               </div>
             </div>
             <div className="mt-4 flex gap-2">
-              <Button onClick={submit}>Create trip</Button>
+              <Button onClick={submit} disabled={!city}>
+                Create trip and plan
+              </Button>
               <Button variant="ghost" onClick={() => setOpen(false)}>
                 Cancel
               </Button>

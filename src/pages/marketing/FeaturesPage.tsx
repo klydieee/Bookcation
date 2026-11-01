@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { TripStartLink } from "@/components/TripStartLink";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/motion/Reveal";
 import { Surface } from "@/components/motion/Fluent";
@@ -41,9 +41,11 @@ export function FeaturesPage() {
           </Reveal>
         ))}
       </div>
-      <Link to="/app/trips?start=1" className="mt-10 inline-block">
-        <Button>Start a trip</Button>
-      </Link>
+      <div className="mt-10 inline-block">
+        <TripStartLink>
+          <Button>Start a trip</Button>
+        </TripStartLink>
+      </div>
     </main>
   );
 }

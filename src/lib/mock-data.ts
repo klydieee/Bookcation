@@ -7,9 +7,23 @@ import type {
   RoomType,
 } from "./types";
 
-// All airline, restaurant, and caterer names are fictional (01 §12.8).
+// Sample inventory and prices are deterministic; listed provider names are
+// illustrative and do not imply availability or a business partnership.
 
 export const AIRPORTS: Airport[] = [
+  { code: "MNL", city: "Manila", name: "Ninoy Aquino International" },
+  { code: "CEB", city: "Cebu City", name: "Mactan-Cebu International" },
+  { code: "DVO", city: "Davao City", name: "Francisco Bangoy International" },
+  { code: "CRK", city: "Angeles", name: "Clark International" },
+  { code: "ILO", city: "Iloilo City", name: "Iloilo International" },
+  { code: "PPS", city: "Puerto Princesa", name: "Puerto Princesa International" },
+  { code: "TAG", city: "Panglao", name: "Bohol-Panglao International" },
+  { code: "SIN", city: "Singapore", name: "Changi" },
+  { code: "HKG", city: "Hong Kong", name: "Hong Kong International" },
+  { code: "NRT", city: "Tokyo", name: "Narita International" },
+  { code: "DXB", city: "Dubai", name: "Dubai International" },
+  { code: "SYD", city: "Sydney", name: "Sydney Kingsford Smith" },
+  { code: "LAX", city: "Los Angeles", name: "Los Angeles International" },
   { code: "JFK", city: "New York", name: "John F. Kennedy" },
   { code: "LIS", city: "Lisbon", name: "Humberto Delgado" },
   { code: "LHR", city: "London", name: "Heathrow" },
@@ -22,12 +36,31 @@ export const AIRPORTS: Airport[] = [
   { code: "DUB", city: "Dublin", name: "Dublin" },
 ];
 
-const AIRLINES: { name: string; code: string }[] = [
-  { name: "Skyloom Air", code: "SK" },
-  { name: "Northwind", code: "NW" },
-  { name: "Azure Lines", code: "AZ" },
-  { name: "Meridian", code: "MD" },
-  { name: "Harbor Jet", code: "HJ" },
+const PH_AIRPORT_CODES = new Set([
+  "MNL",
+  "CEB",
+  "DVO",
+  "CRK",
+  "ILO",
+  "PPS",
+  "TAG",
+]);
+
+const DOMESTIC_AIRLINES: { name: string; code: string }[] = [
+  { name: "Cebu Pacific", code: "5J" },
+  { name: "Philippine Airlines", code: "PR" },
+  { name: "AirAsia Philippines", code: "Z2" },
+];
+
+const INTERNATIONAL_AIRLINES: { name: string; code: string }[] = [
+  { name: "Philippine Airlines", code: "PR" },
+  { name: "Cebu Pacific", code: "5J" },
+  { name: "Singapore Airlines", code: "SQ" },
+  { name: "Cathay Pacific", code: "CX" },
+  { name: "Qatar Airways", code: "QR" },
+  { name: "Emirates", code: "EK" },
+  { name: "ANA", code: "NH" },
+  { name: "United Airlines", code: "UA" },
 ];
 
 export function airportByCode(code: string): Airport | undefined {
@@ -64,12 +97,20 @@ export function generateFlights(
   const to = airportByCode(toCode);
   if (!from || !to || from.code === to.code) return [];
 
+  const domestic =
+    PH_AIRPORT_CODES.has(from.code) && PH_AIRPORT_CODES.has(to.code);
+  const airlines = domestic ? DOMESTIC_AIRLINES : INTERNATIONAL_AIRLINES;
   const rand = seeded(`${fromCode}-${toCode}-${dateISO}-${tripType}`);
   const baseDuration = 180 + Math.floor(rand() * 480); // 3h to 11h
   const offers: FlightOffer[] = [];
 
   for (let i = 0; i < 8; i++) {
-    const airline = AIRLINES[Math.floor(rand() * AIRLINES.length)];
+    const airline =
+      i === 0
+        ? airlines[0]
+        : i === 1 && !domestic
+          ? INTERNATIONAL_AIRLINES[0]
+          : airlines[Math.floor(rand() * airlines.length)];
     const stops = rand() < 0.5 ? 0 : rand() < 0.8 ? 1 : 2;
     const durationMin = baseDuration + stops * 90 + Math.floor(rand() * 120);
     const departHour = 6 + Math.floor(rand() * 15);
@@ -78,7 +119,9 @@ export function generateFlights(
     date.setHours(departHour, departMin, 0, 0);
     const departISO = date.toISOString();
     const arriveISO = addMinutes(departISO, durationMin);
-    const basePrice = 180 + stops * -30 + Math.floor(rand() * 520);
+    const basePrice = domestic
+      ? 2400 + stops * 900 + Math.floor(rand() * 6200)
+      : 14000 + stops * 5200 + Math.floor(rand() * 26000);
     const multiplier = tripType === "round trip" ? 1.9 : 1;
 
     offers.push({
@@ -101,32 +144,34 @@ export function generateFlights(
 }
 
 // ---- Restaurants (keyed loosely by destination city) ----
-const CUISINES = [
-  "Portuguese",
-  "Seafood",
-  "Italian",
-  "Japanese",
-  "Mexican",
-  "Vegan",
-  "Steakhouse",
-  "Thai",
-  "French bistro",
-  "Bakery",
+const RESTAURANT_NAMES = [
+  "Jollibee",
+  "McDonald's",
+  "Mang Inasal",
+  "Chowking",
+  "Max's Restaurant",
+  "Bo's Coffee",
+  "Gerry's Grill",
+  "Shakey's",
+  "Yellow Cab Pizza",
+  "Army Navy",
+  "Bonchon",
+  "Cafe Laguna",
 ];
 
-const RESTAURANT_NAMES = [
-  "Casa do Mar",
-  "The Blue Kettle",
-  "Olive & Ash",
-  "Hanami",
-  "El Rincón",
-  "Verdant",
-  "Ironwood Grill",
-  "Lemongrass",
-  "Petite Rue",
-  "Dawn Bakehouse",
-  "Saltwater Table",
-  "Nonna's Kitchen",
+const RESTAURANT_CUISINES = [
+  "Filipino fast food",
+  "Fast food",
+  "Filipino barbecue",
+  "Chinese fast food",
+  "Filipino",
+  "Cafe",
+  "Filipino grill",
+  "Pizza",
+  "Pizza",
+  "Tex-Mex",
+  "Korean",
+  "Filipino",
 ];
 
 function buildMenu(seed: string, cuisine: string) {
@@ -150,7 +195,7 @@ function buildMenu(seed: string, cuisine: string) {
     id: `${seed}-m${i}`,
     name,
     description: "A kitchen favorite, plated fresh to order.",
-    price: 9 + Math.floor(rand() * 26),
+    price: 250 + Math.floor(rand() * 900),
     tags: allTags.filter(() => rand() < 0.35),
   }));
 }
@@ -173,7 +218,7 @@ export function generateRestaurants(city: string): Restaurant[] {
   ];
 
   for (let i = 0; i < 12; i++) {
-    const cuisine = CUISINES[Math.floor(rand() * CUISINES.length)];
+    const cuisine = RESTAURANT_CUISINES[i];
     const opensHour = 7 + Math.floor(rand() * 5);
     list.push({
       id: `rest-${city.toLowerCase()}-${i}`,
@@ -182,7 +227,7 @@ export function generateRestaurants(city: string): Restaurant[] {
       priceTier: ((Math.floor(rand() * 4) + 1) as 1 | 2 | 3 | 4),
       rating: Math.round((3.6 + rand() * 1.4) * 10) / 10,
       etaMin: 20 + Math.floor(rand() * 40),
-      neighborhood: ["Old Town", "Riverside", "Market District", "Hillside"][
+      neighborhood: ["City center", "Business district", "Waterfront", "Uptown"][
         Math.floor(rand() * 4)
       ],
       opensHour,
@@ -224,12 +269,12 @@ const AMENITIES = [
 
 export function generateHotels(city: string): Hotel[] {
   const rand = seeded("hotel-" + city.toLowerCase());
-  const neighborhoods = ["Old Town", "Riverside", "Market District", "Hillside"];
+  const neighborhoods = ["City center", "Business district", "Waterfront", "Uptown"];
   const list: Hotel[] = [];
 
   for (let i = 0; i < 10; i++) {
     const stars = (3 + Math.floor(rand() * 3)) as 3 | 4 | 5;
-    const baseNightly = 70 + stars * 30 + Math.floor(rand() * 120);
+    const baseNightly = 1300 + stars * 700 + Math.floor(rand() * 3600);
     const rooms: Hotel["rooms"] = [
       { type: "Standard" as RoomType, nightly: baseNightly, sleeps: 2 },
       {
@@ -266,10 +311,24 @@ const CATERERS = [
   "The Spread",
   "Harvest Hands",
 ];
+const LOCAL_CATERERS: Record<string, string[]> = {
+  "cebu city": ["Cebu Table Co", "Mactan Feast Studio", "Island Gathering Kitchen"],
+  manila: ["Metro Feast Studio", "Manila Table Co", "Capital Gathering Kitchen"],
+  "davao city": ["Davao Table Co", "Durian City Catering", "Southern Feast Studio"],
+  angeles: ["Clark Table Co", "Pampanga Feast Studio", "North Luzon Gathering Kitchen"],
+  "iloilo city": ["Iloilo Table Co", "Western Visayas Feast Studio", "Heritage Gathering Kitchen"],
+  "puerto princesa": ["Palawan Table Co", "Island Feast Studio", "Puerto Gathering Kitchen"],
+  panglao: ["Bohol Table Co", "Panglao Feast Studio", "Island Gathering Kitchen"],
+};
 const STYLES = ["Buffet", "Plated", "Boxed", "Family style", "Grazing table"];
 
 export function generateCateringOptions(): CateringOption[] {
-  const rand = seeded("catering-v1");
+  return generateCateringOptionsForCity("Philippines");
+}
+
+export function generateCateringOptionsForCity(city: string): CateringOption[] {
+  const rand = seeded(`catering-v1-${city.toLowerCase()}`);
+  const localCaterers = LOCAL_CATERERS[city.toLowerCase()] ?? CATERERS;
   const dietPool: CateringOption["diet"] = [
     "vegetarian",
     "vegan",
@@ -277,11 +336,11 @@ export function generateCateringOptions(): CateringOption[] {
     "halal",
     "nut-free",
   ];
-  return CATERERS.map((caterer, i) => ({
+  return localCaterers.map((caterer, i) => ({
     id: `cat-${i}`,
     caterer,
     style: STYLES[i % STYLES.length],
-    perPerson: 18 + Math.floor(rand() * 42),
+    perPerson: 650 + Math.floor(rand() * 1900),
     minGuests: [2, 10, 20][Math.floor(rand() * 3)],
     leadDays: 1 + Math.floor(rand() * 5),
     diet: dietPool.filter(() => rand() < 0.5),

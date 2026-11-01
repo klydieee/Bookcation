@@ -62,6 +62,7 @@ export function SettingsPage() {
             value={prefs.currency}
             onChange={(e) => prefs.setCurrency(e.target.value as Currency)}
           >
+            <option value="PHP">PHP — Philippine peso</option>
             <option value="USD">USD — US dollar</option>
             <option value="EUR">EUR — Euro</option>
             <option value="GBP">GBP — Pound sterling</option>

@@ -9,6 +9,7 @@ import type {
 } from "./types";
 import {
   generateCateringOptions,
+  generateCateringOptionsForCity,
   generateFlights,
   generateHotels,
   generateRestaurants,
@@ -25,7 +26,7 @@ export interface BookcationApi {
   searchFlights(q: FlightQuery): Promise<FlightOffer[]>;
   listRestaurants(city: string): Promise<Restaurant[]>;
   listHotels(city: string): Promise<Hotel[]>;
-  listCateringOptions(): Promise<CateringOption[]>;
+  listCateringOptions(city?: string): Promise<CateringOption[]>;
 }
 
 // Simulate a small latency so loading states are real.
@@ -43,8 +44,12 @@ export const mockApi: BookcationApi = {
   listHotels(city) {
     return delay(generateHotels(city || "Lisbon"));
   },
-  listCateringOptions() {
-    return delay(generateCateringOptions());
+  listCateringOptions(city) {
+    return delay(
+      city
+        ? generateCateringOptionsForCity(city)
+        : generateCateringOptions(),
+    );
   },
 };
 

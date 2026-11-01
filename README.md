@@ -269,6 +269,8 @@ npm run typecheck
 npm run build
 ```
 
+Create a free Geoapify project to get an API key, copy `.env.example` to `.env.local`, and replace the placeholder value. Set the same `GEOAPIFY_API_KEY` in your Vercel project's environment variables for deployment. Do not commit the key. Geoapify requires attribution; map tiles are from OpenStreetMap and include on-map attribution.
+
 ### Tech stack
 
 | Layer | Choice |
@@ -278,6 +280,7 @@ npm run build
 | Styles | Tailwind CSS v4 (`@theme` tokens) |
 | State | Zustand (localStorage persistence) |
 | Routing | React Router 6 |
+| Maps | Leaflet + OpenStreetMap tiles; Geoapify Places and Geocoding APIs |
 | Icons | Phosphor Icons |
 | Fonts | Bricolage Grotesque + Atkinson Hyperlegible Next (self-hosted) |
 | Desktop | Tauri 2 |

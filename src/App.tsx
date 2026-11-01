@@ -16,14 +16,18 @@ import { TripCanvasPage } from "./pages/app/TripCanvasPage";
 import { CheckoutPage } from "./pages/app/CheckoutPage";
 import { BookingsPage } from "./pages/app/BookingsPage";
 import { SettingsPage } from "./pages/app/SettingsPage";
+import { BookingGuidePage } from "./pages/app/BookingGuidePage";
+import { RidesPage } from "./pages/app/RidesPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { LoginPage } from "./pages/LoginPage";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { TripLaunchTransition } from "./components/motion/TripLaunchTransition";
 
 export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <TripLaunchTransition />
       <Routes>
         {/* Marketing */}
         <Route element={<MarketingLayout />}>
@@ -43,6 +47,8 @@ export default function App() {
           <Route path="hotels" element={<HotelsPage />} />
           <Route path="food" element={<FoodPage />} />
           <Route path="catering" element={<CateringPage />} />
+          <Route path="rides" element={<RidesPage />} />
+          <Route path="guide/:tripId" element={<BookingGuidePage />} />
           <Route path="trips" element={<TripsPage />} />
           <Route path="trips/:tripId" element={<TripCanvasPage />} />
           <Route

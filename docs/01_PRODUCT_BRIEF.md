@@ -7,7 +7,7 @@
 
 ## 1. One-liner
 
-Bookcation is a booking app where flights, restaurant meals, and catering live on one editable trip plan, so you can fork the plan, compare versions, and book it all in one checkout.
+Bookcation is a trip-planning app for Filipino travelers where flights, stays, restaurant meals, catering, and ride reminders live on one editable plan.
 
 ## 2. The problem it solves
 
@@ -15,19 +15,23 @@ Trips get planned across separate tools: flights in one, dinner reservations in 
 
 ## 3. The idea (what makes it different)
 
-1. **One canvas.** Flights, meals, and catering are cards on a day-by-day board.
+1. **One canvas.** Flights, stays, meals, catering, and ride reminders are cards on a day-by-day board.
 2. **Iteration is a first-class feature.** A plan can be forked into Plan B, edited freely, and compared with Plan A (items added, removed, changed, and the cost and travel-time deltas).
 3. **Clash detection.** The canvas flags conflicts (meal during a flight, tight connection, catering lead time missed).
 4. **Gate to plate.** After a flight lands, food suggestions respect arrival time and opening hours (P1).
 
-## 4. Scope boundary (front-end only)
+## 4. Scope boundary (front-end and nearby-search backend)
 
-This build is the **entire front-end**. There is no backend, no real inventory, no real payments.
+The app includes a Vercel serverless endpoint for live nearby-place discovery. There is no real booking inventory, booking confirmation, or payment processing.
 
 | Concern | In this build | Later (backend) |
 |---|---|---|
 | UI, routing, state, animations | Real, complete | none |
-| Flight / restaurant / catering data | Deterministic **mock data** behind an API interface | Real providers swap in via `HttpAdapter` |
+| Flight / booking inventory | Deterministic **mock data** behind an API interface | Real providers swap in via `HttpAdapter` |
+| Nearby places | Vercel `/api/nearby` endpoint uses Geoapify Places and Geocoding APIs for live nearby search; the Geoapify free plan currently includes up to 3,000 requests per day and requires an API key and attribution | Monitor quota and upgrade or switch provider as usage grows |
+| Maps and location | Interactive Leaflet map with OpenStreetMap tiles; browse near the active trip destination or a typed area. Current location is requested only after the user selects the location button and grants browser permission. No city is assumed when there is no trip | Follow OpenStreetMap tile usage policy and review location-consent requirements |
+| Provider labels | Cebu Pacific, Philippine Airlines, Grab, Uber, and food brands appear as planning options only | Partner agreements and live provider integrations |
+| Ride planning | Sample ride reminders are saved to the trip plan; no ride is requested | Real ride booking integration and confirmation |
 | Auth | Mock guest session (local only) | Real auth provider |
 | Payments | **Simulated** checkout, no card data stored or sent | Payment provider (hosted fields) |
 | Persistence | IndexedDB on device | Server database |
@@ -62,14 +66,16 @@ Plus: **desktop-first** users (planning at a laptop) and **mobile-first** users 
 
 | Module | Color id | Purpose | Priority |
 |---|---|---|---|
-| Flights | `flight` | Search, compare, add to plan | P0 |
+| Flights | `flight` | Philippines-first airport search; Cebu Pacific for domestic samples, Philippine Airlines and other carriers for international samples | P0 |
+| Stays | `stay` | Search destination stays and add to plan | P0 |
 | Food | `food` | Browse restaurants, reserve, pickup, delivery | P0 |
-| Catering | `catering` | Headcount-based quotes | P0 |
+| Catering | `catering` | Destination-based sample quotes and local event venue searches; unavailable when the active plan includes a hotel | P0 |
+| Rides | `trip` | Schedule Grab or Uber ride reminders around planned activities | P0 |
 | Trips | `trip` | Canvas, plan versions, compare | P0 |
 | Bookings | n/a | Wallet of confirmed items | P0 |
-| Stays, Activities, Car hire | reserved | Extension slots | P2 |
+| Activities, Car hire | reserved | Extension slots | P2 |
 
-The code must use a **module registry** (see `05_ARCHITECTURE.md` §7) so adding Stays later means adding one folder and one registry entry.
+Provider names and sample prices are illustrative. Nearby places are supplied by Geoapify using OpenStreetMap data; Bookcation does not claim a formal partnership or create live bookings.
 
 ## 8. Feature priority
 
@@ -77,13 +83,15 @@ The code must use a **module registry** (see `05_ARCHITECTURE.md` §7) so adding
 |---|---|---|
 | 1 | Marketing home with interactive hero canvas, About, Help, Legal, Download | P0 |
 | 2 | Responsive app shell (sidebar / bottom tabs), theme (light, dark, system) | P0 |
-| 3 | Flights: search (one-way, round trip), filters, sort, detail sheet, add to plan | P0 |
+| 3 | Flights: Philippines-first airports, Cebu Pacific domestic options, Philippine Airlines and other international options, filters, sort, add to plan | P0 |
 | 4 | Food: browse, restaurant page, menu, cart (delivery, pickup), table reservation | P0 |
 | 5 | Catering: builder, quotes comparison, add to plan | P0 |
-| 6 | Trips: list, create, Trip Canvas, drag between days, budget bar | P0 |
+| 6 | Trips: list, create, guided yes/no booking sequence, Trip Canvas, drag between days, budget bar | P0 |
 | 7 | Plan versions: fork, switch, compare, promote | P0 |
 | 8 | Conflict detection on the canvas | P0 |
 | 9 | Checkout (simulated) and Bookings wallet with ticket-style cards | P0 |
+| 9a | Rides: add a provider-specific trip reminder for an airport or planned restaurant visit | P0 |
+| 9b | Location-aware recommendations: optional browser location permission and live OpenStreetMap results for destination restaurants, hotels, airports, caterers, event venues, and rides | P0 |
 | 10 | Settings: currency, units, theme, reset demo data, failure simulation | P0 |
 | 11 | i18n scaffolding (English only), all strings via `t()` | P0 |
 | 12 | PWA, Tauri, Capacitor, Vercel, CI release workflow | P0 |
@@ -115,7 +123,7 @@ The code must use a **module registry** (see `05_ARCHITECTURE.md` §7) so adding
 
 ## 10. Primary user journeys (each becomes an E2E test)
 
-1. **Plan and book a simple trip.** Home → Start a trip → create trip (Lisbon, 5 days) → search flights → add outbound and return → add a dinner reservation → open canvas → Review and book → checkout → booking appears in Bookings.
+1. **Plan a simple trip.** Home → Start a trip → create a trip (Cebu City, 5 days) → answer the guided flight, hotel, food, catering, and ride questions → review the canvas.
 2. **Iterate.** In a drafted trip, fork Plan A → in Plan B swap the flight for a cheaper one and move dinner → Compare → see deltas → "Make this the plan" → book.
 3. **Resolve a clash.** Drag a dinner onto the time a flight is in the air → conflict banner appears with a fix suggestion → apply fix → banner clears.
 4. **Group catering.** Open Catering → 40 guests, dietary needs, date → compare 3 or more quotes → add the chosen one to the plan → total updates.
@@ -136,8 +144,8 @@ The code must use a **module registry** (see `05_ARCHITECTURE.md` §7) so adding
 | 1 | Domain | `bookcation.app` placeholder; availability not checked |
 | 2 | Bundle / app id | `com.bookcation.app` placeholder |
 | 3 | Legal entity, terms, privacy | Placeholder pages marked **not legal advice** |
-| 4 | Default currency and locale | USD, `en-US`; user can change currency in Settings |
+| 4 | Default currency and locale | PHP, `en-PH`; user can change currency in Settings |
 | 5 | Pricing / fees to users | No pricing page; do not claim "free" until confirmed |
 | 6 | Real data providers | Undecided; the API contract in `09_DATA_AND_API.md` is provider-neutral |
 | 7 | Store listings (App Store, Play) | Out of scope for the build; copy and size specs provided |
-| 8 | Airline and restaurant names | All fictional; run a trademark check before launch |
+| 8 | Provider names | Real company names are displayed as sample options only; there are no formal partnerships or live integrations |

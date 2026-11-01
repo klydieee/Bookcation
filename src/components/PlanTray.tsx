@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import {
   AirplaneTilt,
   Bed,
+  Car,
   CookingPot,
   ForkKnife,
   Warning,
@@ -36,6 +37,7 @@ export function PlanTray() {
     stay: plan.items.filter((i) => i.kind === "stay").length,
     food: plan.items.filter((i) => i.kind === "reservation").length,
     catering: plan.items.filter((i) => i.kind === "catering").length,
+    rides: plan.items.filter((i) => i.kind === "ride").length,
   };
   const conflicts = detectConflicts(plan);
 
@@ -62,6 +64,10 @@ export function PlanTray() {
         <div className="flex items-center gap-1">
           <CookingPot size={18} className="text-[var(--color-catering)]" />
           <span className="tnum">{counts.catering}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Car size={18} className="text-[var(--color-trip)]" />
+          <span className="tnum">{counts.rides}</span>
         </div>
       </dl>
 

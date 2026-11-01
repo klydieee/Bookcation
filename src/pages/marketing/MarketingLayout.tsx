@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { DemoBanner } from "@/components/DemoBanner";
 import { RouteFade } from "@/components/motion/RouteFade";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { TripStartLink } from "@/components/TripStartLink";
 
 export function MarketingLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -35,9 +36,11 @@ export function MarketingLayout() {
                 Sign in
               </Button>
             </Link>
-            <Link to="/app/trips?start=1" className="hidden sm:block">
-              <Button size="sm">Start a trip</Button>
-            </Link>
+            <span className="hidden sm:block">
+              <TripStartLink>
+                <Button size="sm">Start a trip</Button>
+              </TripStartLink>
+            </span>
             <button
               aria-label="Menu"
               className="rounded-[var(--radius-sm)] p-2 hover:bg-[var(--color-sunken)] md:hidden"
@@ -53,11 +56,11 @@ export function MarketingLayout() {
               <MarketingNavLink to="/features">Features</MarketingNavLink>
               <MarketingNavLink to="/download">Download</MarketingNavLink>
               <MarketingNavLink to="/help">Help</MarketingNavLink>
-              <Link to="/app/trips?start=1">
+              <TripStartLink>
                 <Button size="sm" className="mt-2 w-full">
                   Start a trip
                 </Button>
-              </Link>
+              </TripStartLink>
             </nav>
           </div>
         )}

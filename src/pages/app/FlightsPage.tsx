@@ -9,13 +9,14 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { FlightTicket } from "@/components/tickets/FlightTicket";
 import { useAddToPlan } from "@/store/useAddToPlan";
 import { PageHeader } from "@/components/PageHeader";
+import { NearbyGuide } from "@/components/NearbyGuide";
 
 type Sort = "price" | "duration" | "depart";
 
 export function FlightsPage() {
   const { add } = useAddToPlan();
-  const [from, setFrom] = useState("JFK");
-  const [to, setTo] = useState("LIS");
+  const [from, setFrom] = useState("MNL");
+  const [to, setTo] = useState("CEB");
   const [date, setDate] = useState(() =>
     new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10),
   );
@@ -53,11 +54,14 @@ export function FlightsPage() {
         new Date(a.departISO).getTime() - new Date(b.departISO).getTime()
       );
     });
+  const destinationCity =
+    AIRPORTS.find((airport) => airport.code === to)?.city ?? to;
 
   return (
     <div>
       <PageHeader title="Flights" subtitle="Search by airport and date, then add to your plan." />
       <div className="p-4 lg:p-8">
+        <NearbyGuide city={destinationCity} initialService="flights" />
         <form
           onSubmit={(e) => {
             e.preventDefault();

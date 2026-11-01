@@ -6,6 +6,7 @@ import type { Hotel, RoomType } from "@/lib/types";
 import { Input, Label, Select } from "@/components/ui/Field";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/PageHeader";
+import { NearbyGuide } from "@/components/NearbyGuide";
 import { StayTicket } from "@/components/tickets/StayTicket";
 import { useActivePlanContext } from "@/store/useActivePlan";
 import { useAddToPlan } from "@/store/useAddToPlan";
@@ -23,7 +24,7 @@ export function HotelsPage() {
   const { add } = useAddToPlan();
   const cities = useMemo(() => [...new Set(AIRPORTS.map((a) => a.city))], []);
 
-  const [city, setCity] = useState(trip?.destinationCity || "Lisbon");
+  const [city, setCity] = useState(trip?.destinationCity ?? "");
   const [checkIn, setCheckIn] = useState(() =>
     (trip?.startDateISO ?? new Date(Date.now() + 14 * 86400000).toISOString()).slice(
       0,
@@ -42,6 +43,11 @@ export function HotelsPage() {
   const [rooms, setRooms] = useState<Record<string, RoomType>>({});
 
   useEffect(() => {
+    if (!city) {
+      setHotels(null);
+      return;
+    }
+
     let active = true;
     setHotels(null);
     void api.listHotels(city).then((h) => {
@@ -96,10 +102,12 @@ export function HotelsPage() {
         subtitle="Find a place to stay, pick a room, and add the nights to your plan."
       />
       <div className="p-4 lg:p-8">
+        <NearbyGuide city={city} initialService="hotels" />
         <div className="mb-6 grid grid-cols-2 gap-3 rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[var(--color-surface)] p-4 shadow-2 md:grid-cols-4">
           <div>
             <Label htmlFor="hcity">City</Label>
             <Select id="hcity" value={city} onChange={(e) => setCity(e.target.value)}>
+              <option value="">Choose a city</option>
               {cities.map((c) => (
                 <option key={c} value={c}>
                   {c}
@@ -160,16 +168,22 @@ export function HotelsPage() {
           </div>
         )}
 
-        {!hotels && (
+        {city && !hotels && (
           <p className="text-[var(--color-ink-muted)]">Loading hotels…</p>
         )}
 
-        {hotels && shown.length === 0 && (
+        {city && hotels && shown.length === 0 && (
           <EmptyState
             icon={Bed}
             title="No hotels here yet"
             body="Try another city to see places to stay."
           />
+        )}
+
+        {!city && (
+          <p className="mb-4 text-[0.875rem] text-[var(--color-ink-muted)]">
+            Choose a city or use your location above to explore places nearby. Hotel sample listings follow the selected city or active trip destination.
+          </p>
         )}
 
         <div className="grid gap-4">

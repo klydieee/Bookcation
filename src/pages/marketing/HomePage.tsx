@@ -4,6 +4,7 @@ import {
   AirplaneTilt,
   Bed,
   CaretDown,
+  Car,
   CookingPot,
   ForkKnife,
   GitDiff,
@@ -18,6 +19,7 @@ import { HeroCanvas } from "./HeroCanvas";
 import { Reveal } from "@/components/motion/Reveal";
 import { Surface } from "@/components/motion/Fluent";
 import { usePointerLight } from "@/components/motion/usePointerLight";
+import { TripStartLink } from "@/components/TripStartLink";
 
 const MODULES: { heading: string; body: string; icon: Icon; color: string }[] = [
   {
@@ -28,7 +30,7 @@ const MODULES: { heading: string; body: string; icon: Icon; color: string }[] = 
   },
   {
     heading: "Hotels",
-    body: "Search a city, pick a room type, and add the nights to your plan. The total updates with your dates.",
+    body: "Find a stay in your destination and add the dates to your plan.",
     icon: Bed,
     color: "stay",
   },
@@ -40,7 +42,7 @@ const MODULES: { heading: string; body: string; icon: Icon; color: string }[] = 
   },
   {
     heading: "Catering",
-    body: "Set a headcount, compare per-person quotes, and add the one that fits your budget.",
+    body: "Compare sample event caterers and search for nearby venues. Hotel stays use restaurant pickup or delivery instead.",
     icon: CookingPot,
     color: "catering",
   },
@@ -50,10 +52,16 @@ const MODULES: { heading: string; body: string; icon: Icon; color: string }[] = 
     icon: Path,
     color: "trip",
   },
+  {
+    heading: "Rides",
+    body: "Add Grab or Uber ride reminders between the airport, hotel, and your plans.",
+    icon: Car,
+    color: "trip",
+  },
 ];
 
 const STEPS = [
-  { n: 1, title: "Draft.", body: "Add flights, meals, and catering to a plan." },
+  { n: 1, title: "Draft.", body: "Add flights, stays, meals, catering, and rides to a plan." },
   { n: 2, title: "Fork.", body: "Copy the plan in one click and change what you want." },
   { n: 3, title: "Compare.", body: "See what was added, removed, and what the total did." },
   { n: 4, title: "Book.", body: "Choose a plan and check out once." },
@@ -78,6 +86,11 @@ const TRUST: { icon: Icon; heading: string; body: string }[] = [
 ];
 
 const PLATFORMS = ["Web", "macOS", "Windows", "Linux", "Android", "iOS"];
+const SERVICE_PROVIDERS = [
+  { group: "Airlines", names: ["Cebu Pacific", "Philippine Airlines", "AirAsia Philippines"] },
+  { group: "Rides", names: ["Grab", "Uber"] },
+  { group: "Food", names: ["Jollibee", "McDonald's", "GrabFood", "foodpanda"] },
+];
 
 export function HomePage() {
   return (
@@ -102,14 +115,14 @@ export function HomePage() {
             Every trip deserves a second draft.
           </h1>
           <p className="text-body-lg mt-5 max-w-[56ch] text-[var(--color-ink-muted)]">
-            Bookcation puts your flights, restaurant reservations, and catering
-            on one canvas. Swap a flight, move a dinner, fork the whole plan, and
-            see what changes before you book.
+            Bookcation brings flights, stays, restaurant meals, catering, and
+            rides together on one canvas. Compare options, adjust the plan, and
+            review the total before checkout.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link to="/app/trips?start=1">
+            <TripStartLink>
               <Button glow>Start a trip</Button>
-            </Link>
+            </TripStartLink>
             <a href="#fork">
               <Button variant="secondary">See how plans work</Button>
             </a>
@@ -117,6 +130,32 @@ export function HomePage() {
         </div>
         <div className="lg:col-span-7">
           <HeroCanvas />
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1200px] px-4 pb-10 lg:px-6">
+        <div className="rounded-[var(--radius-lg)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 lg:p-8">
+          <h2 className="text-h2">Providers Filipino travelers may recognize</h2>
+          <p className="mt-2 max-w-[70ch] text-[0.875rem] text-[var(--color-ink-muted)]">
+            These names help you plan around familiar services. This preview does not have live inventory or booking integrations, and it does not claim formal partnerships.
+          </p>
+          <div className="mt-6 grid gap-5 md:grid-cols-3">
+            {SERVICE_PROVIDERS.map((provider) => (
+              <div key={provider.group}>
+                <h3 className="text-h4">{provider.group}</h3>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {provider.names.map((name) => (
+                    <span
+                      key={name}
+                      className="rounded-[var(--radius-pill)] border border-[var(--color-line)] bg-[var(--color-canvas)] px-3 py-1.5 text-[0.875rem] font-semibold"
+                    >
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -300,9 +339,9 @@ export function HomePage() {
           className="flex flex-col items-center gap-6 p-12 text-center"
         >
           <h2 className="text-display-lg">Your next trip starts as a draft.</h2>
-          <Link to="/app/trips?start=1">
+          <TripStartLink>
             <Button glow>Start a trip</Button>
-          </Link>
+          </TripStartLink>
         </Surface>
       </section>
     </main>
@@ -333,6 +372,14 @@ const FAQ = [
   {
     q: "Does it work offline?",
     a: "You can open and edit saved plans without a connection.",
+  },
+  {
+    q: "When does Bookcation use my location?",
+    a: "Only after you tap Use my location and allow the browser prompt. Coordinates update the embedded Google Map and are not saved to your trip.",
+  },
+  {
+    q: "Does Bookcation confirm rides with Grab or Uber?",
+    a: "No. It can save a ride reminder to your trip plan. Confirm availability and request a ride in the provider app.",
   },
 ];
 

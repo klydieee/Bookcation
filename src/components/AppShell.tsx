@@ -3,6 +3,7 @@ import {
   AirplaneTilt,
   ArrowLeft,
   Bed,
+  Car,
   CookingPot,
   ForkKnife,
   GearSix,
@@ -19,6 +20,7 @@ import { RouteFade } from "./motion/RouteFade";
 import { ThemeToggle } from "./ui/ThemeToggle";
 import { BrandMark } from "./BrandMark";
 import { useSession } from "@/store/sessionStore";
+import { GuideContinueBanner } from "@/pages/app/BookingGuidePage";
 
 interface NavItem {
   to: string;
@@ -31,6 +33,7 @@ const NAV: NavItem[] = [
   { to: "/app/hotels", label: "Hotels", icon: Bed },
   { to: "/app/food", label: "Food", icon: ForkKnife },
   { to: "/app/catering", label: "Catering", icon: CookingPot },
+  { to: "/app/rides", label: "Rides", icon: Car },
   { to: "/app/trips", label: "Trips", icon: Path },
   { to: "/app/bookings", label: "Bookings", icon: TicketIcon },
 ];
@@ -84,6 +87,7 @@ export function AppShell() {
         {/* Main content */}
         <main className="flex min-w-0 flex-1 flex-col pb-20 lg:pb-0">
           <MobileHeader />
+          <GuideContinueBanner />
           <RouteFade>
             <Outlet />
           </RouteFade>

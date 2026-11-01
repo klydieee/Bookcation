@@ -170,6 +170,166 @@
   }
 }
 
+.trip-flight-animation {
+  position: relative;
+  display: flex;
+  height: 2rem;
+  align-items: center;
+  padding: 0 0.4rem;
+}
+
+.trip-route-line {
+  width: 100%;
+  border-top: 2px dashed var(--color-line-strong);
+}
+
+.trip-route-dot {
+  position: absolute;
+  z-index: 1;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 9999px;
+  background: var(--color-primary);
+}
+
+.trip-route-dot-start {
+  left: 0;
+}
+
+.trip-route-dot-end {
+  right: 0;
+}
+
+.trip-route-plane {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  color: var(--color-primary-ink);
+  animation: trip-flight-across 2.4s var(--ease-out-quint) both;
+}
+
+@keyframes trip-flight-across {
+  from {
+    left: 0;
+    transform: translateX(0) rotate(0deg);
+  }
+  to {
+    left: 100%;
+    transform: translateX(-100%) rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trip-route-plane {
+    animation: none;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+.reduce-motion .trip-route-plane {
+  animation: none;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.trip-launch-transition {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  animation: trip-launch-overlay 2400ms ease-out both;
+}
+
+.trip-launch-wash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 18% 82%, color-mix(in srgb, var(--color-primary) 16%, transparent), transparent 58%),
+    linear-gradient(135deg, var(--color-canvas), color-mix(in srgb, var(--color-trip) 10%, var(--color-canvas)));
+  clip-path: circle(0 at 0% 100%);
+  animation: trip-launch-wipe 1800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.trip-launch-copy {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 0.8rem;
+  width: min(90vw, 34rem);
+  transform: translate(-50%, -50%);
+}
+
+.trip-launch-caption {
+  padding: 0.55rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-line) 80%, transparent);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--color-ink);
+  font-size: 1.125rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgb(15 26 54 / 0.12);
+  opacity: 0;
+  transform: translateY(0.4rem);
+  animation: trip-launch-caption 700ms ease-out 600ms both;
+}
+
+.trip-launch-subcaption {
+  color: var(--color-ink-muted);
+  font-size: clamp(1.05rem, 2.8vw, 1.25rem);
+  font-weight: 500;
+  text-align: center;
+  text-wrap: balance;
+  opacity: 0;
+  filter: blur(4px);
+  transform: translateY(0.65rem);
+  animation: trip-launch-subcaption 900ms cubic-bezier(0.22, 1, 0.36, 1) 1100ms both;
+}
+
+@keyframes trip-launch-wipe {
+  0% {
+    clip-path: circle(0 at 0% 100%);
+  }
+  100% {
+    clip-path: circle(155vmax at 0% 100%);
+  }
+}
+
+@keyframes trip-launch-caption {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes trip-launch-subcaption {
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes trip-launch-overlay {
+  0%, 88% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trip-launch-transition {
+    display: none;
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Motion: disciplined interactivity (03 §6). Everything here degrades */
 /* to a quiet 120ms opacity change (or nothing) under reduced motion.  */

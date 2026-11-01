@@ -206,6 +206,8 @@ Shadows are **ink-tinted**, never neutral grey. Tickets use `filter: drop-shadow
 | Moment | Spec | Trigger |
 |---|---|---|
 | **Hero sequence** (the one orchestrated moment) | Route arc draws (400ms) → three tickets settle with spring, 80ms stagger → total counts up to value. Plays once per visit | Page load |
+| **Trip launch** | A soft brand-color wash sweeps up from the bottom-left; larger trip-start copy fades in, followed by a gently animated supporting line; 2.4s, plays once | User selects Start a trip |
+| **Booking route** | A small airplane travels once along a dashed route when the trip form opens and again when the booking guide begins | User opens the trip form, then creates a trip |
 | **Fork** | The board duplicates, the copy offsets 24px and a Plan B tab appears; route arcs split; delta chips count in. 480ms | User action |
 | **Add to plan** | Ticket sends a small copy along an arc into the Plan Tray; tray count bumps. 520ms, `ease-out-quint` | User action |
 | **List reorder** (sort changes, filter changes) | Layout animation with the layout spring | User action |
@@ -216,7 +218,7 @@ Shadows are **ink-tinted**, never neutral grey. Tickets use `filter: drop-shadow
 
 **Not allowed:** entrance animations on scroll for each section, hover transitions on every card, parallax, auto-playing carousels, looping decorative animations.
 
-**Reduced motion:** with `prefers-reduced-motion: reduce` (or Settings → Reduce motion = on) replace every transform animation with a 120ms opacity change, skip the route-arc draw and number counting (set values immediately), and disable shared-element transitions. Settings offers *System* (default), *On*, *Off*.
+**Reduced motion:** with `prefers-reduced-motion: reduce` (or Settings → Reduce motion = on) open the destination page without the trip-launch reveal, replace other transform animations with a 120ms opacity change, skip the route-arc draw and number counting (set values immediately), and disable shared-element transitions. Settings offers *System* (default), *On*, *Off*.
 
 **Native haptics** (Capacitor only, feature-detected): light impact on Add to plan, selection tick on tab and day changes, success notification when a booking is created.
 

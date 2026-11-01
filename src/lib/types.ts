@@ -2,7 +2,7 @@
 
 export type ModuleId = "flight" | "food" | "catering" | "stay" | "trip";
 
-export type Currency = "USD" | "EUR" | "GBP";
+export type Currency = "PHP" | "USD" | "EUR" | "GBP";
 
 // ---- Flights ----
 export interface Airport {
@@ -124,12 +124,20 @@ export interface CateringQuote {
   dateISO: string;
 }
 
+export interface RideReservation {
+  provider: "Grab" | "Uber";
+  from: string;
+  to: string;
+  timeISO: string;
+}
+
 // ---- Plan items ----
 export type PlanItemKind =
   | "flight"
   | "reservation"
   | "stay"
   | "catering"
+  | "ride"
   | "note";
 
 export interface PlanItemBase {
@@ -161,6 +169,11 @@ export interface CateringPlanItem extends PlanItemBase {
   quote: CateringQuote;
 }
 
+export interface RidePlanItem extends PlanItemBase {
+  kind: "ride";
+  ride: RideReservation;
+}
+
 export interface NotePlanItem extends PlanItemBase {
   kind: "note";
   note: string;
@@ -171,6 +184,7 @@ export type PlanItem =
   | ReservationPlanItem
   | StayPlanItem
   | CateringPlanItem
+  | RidePlanItem
   | NotePlanItem;
 
 // ---- Trips and plans ----

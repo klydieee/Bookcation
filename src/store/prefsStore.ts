@@ -17,7 +17,7 @@ export const usePrefs = create<PrefsState>()(
   persist(
     (set) => ({
       theme: "system",
-      currency: "USD",
+      currency: "PHP",
       reduceMotion: "system",
       setTheme: (theme) => set({ theme }),
       setCurrency: (currency) => set({ currency }),

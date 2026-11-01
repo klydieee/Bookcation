@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   AirplaneTilt,
   Bed,
+  Car,
   CookingPot,
   ForkKnife,
   GitDiff,
@@ -244,7 +245,7 @@ function CanvasItemRow({
   onMove: (day: number) => void;
   onRemove: () => void;
 }) {
-  const IconCmp = moduleIcon[item.module];
+  const IconCmp = item.kind === "ride" ? Car : moduleIcon[item.module];
   return (
     <li className="hover-tint enter-up flex items-center gap-3 rounded-[var(--radius-sm)] bg-[var(--color-canvas)] p-3 hover:bg-[var(--color-sunken)]">
       <span
