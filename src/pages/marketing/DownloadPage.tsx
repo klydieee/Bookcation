@@ -35,9 +35,10 @@ interface DownloadCard {
 }
 
 const GITHUB_RELEASES = "https://github.com/klydieee/Bookcation/releases";
-const RELEASE_PAGE = `${GITHUB_RELEASES}/tag/v2.0.0`;
+const RELEASE_VERSION = "2.0.1";
+const RELEASE_PAGE = `${GITHUB_RELEASES}/tag/v${RELEASE_VERSION}`;
 const RELEASE_BASE =
-  "https://github.com/klydieee/Bookcation/releases/download/v2.0.0";
+  `${GITHUB_RELEASES}/download/v${RELEASE_VERSION}`;
 
 const CARDS: DownloadCard[] = [
   {
@@ -45,12 +46,12 @@ const CARDS: DownloadCard[] = [
     heading: "Windows",
     detail: "Windows 10 or later. 64-bit. NSIS installer or MSI package.",
     status: "available",
-    version: "2.0.0",
+    version: RELEASE_VERSION,
     size: "2.6 MB",
     primaryLabel: "Download installer (.exe)",
-    href: `${RELEASE_BASE}/Bookcation_2.0.0_x64-setup.exe`,
+    href: `${RELEASE_BASE}/Bookcation_${RELEASE_VERSION}_x64-setup.exe`,
     secondaryLabel: "Download .msi instead",
-    secondaryHref: `${RELEASE_BASE}/Bookcation_2.0.0_x64_en-US.msi`,
+    secondaryHref: `${RELEASE_BASE}/Bookcation_${RELEASE_VERSION}_x64_en-US.msi`,
   },
   {
     icon: Globe,
@@ -65,7 +66,7 @@ const CARDS: DownloadCard[] = [
     heading: "Android",
     detail: "Direct APK sideload. Allow installs from your browser when prompted.",
     status: "available",
-    version: "2.0.0",
+    version: RELEASE_VERSION,
     size: "4.6 MB",
     primaryLabel: "Download APK",
     href: `${RELEASE_BASE}/app-debug.apk`,
@@ -75,7 +76,7 @@ const CARDS: DownloadCard[] = [
     heading: "Linux",
     detail: "AppImage (all distros) and .deb (Debian / Ubuntu).",
     status: "available",
-    version: "2.0.0",
+    version: RELEASE_VERSION,
     primaryLabel: "Browse Linux release assets",
     href: RELEASE_PAGE,
   },
@@ -84,7 +85,7 @@ const CARDS: DownloadCard[] = [
     heading: "Mac",
     detail: "macOS 13 or later. Separate Apple silicon and Intel installers.",
     status: "available",
-    version: "2.0.0",
+    version: RELEASE_VERSION,
     primaryLabel: "Browse macOS release assets",
     href: RELEASE_PAGE,
   },
@@ -122,7 +123,7 @@ export function DownloadPage() {
       {/* Version and release assets */}
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[var(--color-sunken)] px-5 py-4">
         <p className="text-[0.875rem] text-[var(--color-ink-muted)]">
-          <strong className="text-[var(--color-ink)]">Version 2.0.0</strong>{" "}
+          <strong className="text-[var(--color-ink)]">Version {RELEASE_VERSION}</strong>{" "}
           builds are available for Windows, macOS, Linux, Android, and web.
           iOS installation requires Apple signing credentials.
         </p>

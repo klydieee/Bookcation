@@ -1,6 +1,6 @@
 {
   "productName": "Bookcation",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "identifier": "com.bookcation.app",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -22,7 +22,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; img-src 'self' data: asset: http://asset.localhost; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost"
+      "csp": "default-src 'self'; img-src 'self' data: asset: http://asset.localhost https://tiles.openfreemap.org; style-src 'self' 'unsafe-inline'; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self' ipc: http://ipc.localhost https://tiles.openfreemap.org"
     }
   },
   "bundle": {

@@ -173,11 +173,11 @@ jobs:
         with:
           path: artifacts
       - name: Package web build
-        run: zip -rq Bookcation_2.0.0_web.zip artifacts/web-dist
+        run: zip -rq "Bookcation_${GITHUB_REF_NAME}_web.zip" artifacts/web-dist
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             artifacts/**/*
-            Bookcation_2.0.0_web.zip
+            Bookcation_*_web.zip
           generate_release_notes: true

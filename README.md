@@ -19,20 +19,20 @@ Flights, hotels, restaurant reservations, and catering on one editable trip plan
 Fork it. Compare versions. Book everything in one checkout.
 
 [![Build all platforms](https://github.com/klydieee/Bookcation/actions/workflows/release.yml/badge.svg)](https://github.com/klydieee/Bookcation/actions/workflows/release.yml)
-[![Release v2.0.0](https://img.shields.io/github/v/release/klydieee/Bookcation?color=2F3DF5&label=latest)](https://github.com/klydieee/Bookcation/releases/latest)
+[![Release v2.0.1](https://img.shields.io/github/v/release/klydieee/Bookcation?color=2F3DF5&label=latest)](https://github.com/klydieee/Bookcation/releases/latest)
 [![License MIT](https://img.shields.io/badge/license-MIT-FFB020)](LICENSE)
 
 ---
 
-### Download v2.0.0
+### Download v2.0.1
 
 | Platform | Download | Status |
 |:---:|:---|:---:|
-| 🪟 **Windows** | [Bookcation_2.0.0_x64-setup.exe](https://github.com/klydieee/Bookcation/releases/download/v2.0.0/Bookcation_2.0.0_x64-setup.exe) · [.msi](https://github.com/klydieee/Bookcation/releases/download/v2.0.0/Bookcation_2.0.0_x64_en-US.msi) | ✅ Ready |
-| 🤖 **Android** | [app-debug.apk](https://github.com/klydieee/Bookcation/releases/download/v2.0.0/app-debug.apk) | ✅ Ready |
+| 🪟 **Windows** | [Bookcation_2.0.1_x64-setup.exe](https://github.com/klydieee/Bookcation/releases/download/v2.0.1/Bookcation_2.0.1_x64-setup.exe) · [.msi](https://github.com/klydieee/Bookcation/releases/download/v2.0.1/Bookcation_2.0.1_x64_en-US.msi) | ✅ Ready |
+| 🤖 **Android** | [app-debug.apk](https://github.com/klydieee/Bookcation/releases/download/v2.0.1/app-debug.apk) | ✅ Ready |
 | 🌐 **Browser** | [Open Bookcation →](https://bookcation.vercel.app) | ✅ Ready |
-| 🍎 **macOS** | [View Apple silicon and Intel installers](https://github.com/klydieee/Bookcation/releases/tag/v2.0.0) | ✅ Ready |
-| 🐧 **Linux** | [View release assets](https://github.com/klydieee/Bookcation/releases/tag/v2.0.0) | ✅ Ready |
+| 🍎 **macOS** | [View Apple silicon and Intel installers](https://github.com/klydieee/Bookcation/releases/tag/v2.0.1) | ✅ Ready |
+| 🐧 **Linux** | [View release assets](https://github.com/klydieee/Bookcation/releases/tag/v2.0.1) | ✅ Ready |
 | 📱 **iOS** | Needs Apple signing | ⏳ |
 
 > **Demo mode** — all builds use sample data. Bookings are simulated and nothing is charged.
@@ -78,7 +78,7 @@ To install as a PWA:
 
 #### Option A — GUI installer (recommended)
 
-1. Download **[Bookcation_2.0.0_x64-setup.exe](https://github.com/klydieee/Bookcation/releases/download/v2.0.0/Bookcation_2.0.0_x64-setup.exe)**
+1. Download **[Bookcation_2.0.1_x64-setup.exe](https://github.com/klydieee/Bookcation/releases/download/v2.0.1/Bookcation_2.0.1_x64-setup.exe)**
 2. Run the installer
 3. If Windows SmartScreen appears, click **More info → Run anyway**
    > The app is unsigned in this preview build. This warning is expected until a code-signing certificate is added.
@@ -86,7 +86,7 @@ To install as a PWA:
 
 #### Option B — MSI package
 
-1. Download **[Bookcation_2.0.0_x64_en-US.msi](https://github.com/klydieee/Bookcation/releases/download/v2.0.0/Bookcation_2.0.0_x64_en-US.msi)**
+1. Download **[Bookcation_2.0.1_x64_en-US.msi](https://github.com/klydieee/Bookcation/releases/download/v2.0.1/Bookcation_2.0.1_x64_en-US.msi)**
 2. Double-click the `.msi` file and follow the wizard
 
 #### Option C — CLI (winget)
@@ -116,7 +116,7 @@ Requirements: [Node.js 20+](https://nodejs.org), [Rust stable](https://rustup.rs
 
 #### Option A — GUI (direct APK sideload)
 
-1. Download **[app-debug.apk](https://github.com/klydieee/Bookcation/releases/download/v2.0.0/app-debug.apk)**
+1. Download **[app-debug.apk](https://github.com/klydieee/Bookcation/releases/download/v2.0.1/app-debug.apk)**
 2. Open the file on your Android device
 3. When prompted, tap **Allow from this source** (Settings → Apps → Special access → Install unknown apps → your browser → Allow)
 4. Tap **Install**
@@ -151,7 +151,7 @@ Requirements: [Node.js 20+](https://nodejs.org), [JDK 17 or 21](https://adoptium
 
 #### GUI
 
-1. Download the `.dmg` matching your Mac's processor from the [v2.0.0 release assets](https://github.com/klydieee/Bookcation/releases/tag/v2.0.0).
+1. Download the `.dmg` matching your Mac's processor from the [v2.0.1 release assets](https://github.com/klydieee/Bookcation/releases/tag/v2.0.1).
 2. Open the `.dmg` and drag **Bookcation** to Applications
 3. If macOS blocks the first launch, right-click the app → **Open**
 
@@ -178,7 +178,7 @@ Requirements: [Node.js 20+](https://nodejs.org), [Rust stable](https://rustup.rs
 
 ### 🐧 Linux
 
-Download the `.deb` or `.AppImage` from the [v2.0.0 release assets](https://github.com/klydieee/Bookcation/releases/tag/v2.0.0).
+Download the `.deb` or `.AppImage` from the [v2.0.1 release assets](https://github.com/klydieee/Bookcation/releases/tag/v2.0.1).
 
 #### Option A — AppImage (GUI, all distros)
 
@@ -312,8 +312,8 @@ Bookcation/
 Pushing a tag (`v*`) triggers `.github/workflows/release.yml`, which builds every platform in parallel and attaches all artifacts to a GitHub Release:
 
 ```bash
-git tag v2.0.0 -m "Bookcation 2.0.0"
-git push origin v2.0.0
+git tag v2.0.1 -m "Bookcation 2.0.1"
+git push origin v2.0.1
 ```
 
 | Runner | Produces |
