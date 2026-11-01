@@ -35,7 +35,7 @@ interface DownloadCard {
 }
 
 const GITHUB_RELEASES = "https://github.com/klydieee/Bookcation/releases";
-const RELEASE_VERSION = "2.0.1";
+const RELEASE_VERSION = "2.0.2";
 const RELEASE_PAGE = `${GITHUB_RELEASES}/tag/v${RELEASE_VERSION}`;
 const RELEASE_BASE =
   `${GITHUB_RELEASES}/download/v${RELEASE_VERSION}`;

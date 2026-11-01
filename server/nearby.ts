@@ -29,6 +29,11 @@ const SEARCH_RADIUS_METERS = 5000;
 const AIRPORT_SEARCH_RADIUS_METERS = 50000;
 const MAX_RESULTS = 30;
 const ATTRIBUTION = "© OpenStreetMap contributors";
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
 
 interface GeoapifyLocation {
   lat: number;
@@ -293,8 +298,12 @@ export async function handleNearbyRequest(
   request: Request,
   apiKey: string,
 ): Promise<Response> {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
+  }
+
   if (request.method !== "GET") {
-    return Response.json(
+    return jsonResponse(
       { error: "Only GET requests are supported." },
       { status: 405, headers: { Allow: "GET" } },
     );
@@ -311,7 +320,7 @@ export async function handleNearbyRequest(
   ];
   const category = params.get("category") as NearbyCategory | null;
   if (!category || !supportedCategories.includes(category)) {
-    return Response.json(
+    return jsonResponse(
       { error: "Choose a supported nearby category." },
       { status: 400 },
     );
@@ -321,13 +330,13 @@ export async function handleNearbyRequest(
   const longitudeText = params.get("lon");
   const query = params.get("q")?.trim();
   if (query && query.length > 120) {
-    return Response.json(
+    return jsonResponse(
       { error: "Location searches must be 120 characters or fewer." },
       { status: 400 },
     );
   }
   if ((latitudeText === null) !== (longitudeText === null)) {
-    return Response.json(
+    return jsonResponse(
       { error: "Both latitude and longitude are required." },
       { status: 400 },
     );
@@ -343,7 +352,7 @@ export async function handleNearbyRequest(
       },
       apiKey,
     );
-    return Response.json(result, {
+    return jsonResponse(result, {
       headers: { "Cache-Control": "private, max-age=30" },
     });
   } catch (error) {
@@ -354,6 +363,17 @@ export async function handleNearbyRequest(
         : message.startsWith("Nearby search is not configured")
           ? 503
           : 502;
-    return Response.json({ error: message }, { status });
+    return jsonResponse({ error: message }, { status });
   }
+}
+
+function jsonResponse(
+  body: unknown,
+  init: ResponseInit = {},
+): Response {
+  const headers = new Headers(init.headers);
+  for (const [name, value] of Object.entries(CORS_HEADERS)) {
+    headers.set(name, value);
+  }
+  return Response.json(body, { ...init, headers });
 }

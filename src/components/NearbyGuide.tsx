@@ -1,6 +1,8 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { Capacitor } from "@capacitor/core";
 import { Link } from "react-router-dom";
+import { isTauri } from "@tauri-apps/api/core";
 import {
   AirplaneTilt,
   Bed,
@@ -32,6 +34,10 @@ import { Button } from "./ui/Button";
 import { Input } from "./ui/Field";
 
 const NearbyMap = lazy(() => import("./NearbyMap"));
+const NEARBY_API_BASE =
+  Capacitor.isNativePlatform() || isTauri()
+    ? "https://bookcation.vercel.app"
+    : "";
 
 interface NearbyService {
   id: NearbyCategory;
@@ -188,8 +194,16 @@ export function NearbyGuide({
     setSearching(true);
     setSearchError("");
     setSelectedPlace(null);
-    void fetch(`/api/nearby?${locationParams}`, { signal: controller.signal })
+    void fetch(`${NEARBY_API_BASE}/api/nearby?${locationParams}`, {
+      signal: controller.signal,
+    })
       .then(async (response) => {
+        const contentType = response.headers.get("content-type") ?? "";
+        if (!contentType.toLowerCase().includes("application/json")) {
+          throw new Error(
+            `Nearby search returned an unexpected response (HTTP ${response.status}). Please try again later.`,
+          );
+        }
         const payload = (await response.json()) as
           | NearbySearchResult
           | { error: string };
