@@ -66,7 +66,7 @@ const CARDS: DownloadCard[] = [
     detail: "Direct APK sideload. Allow installs from your browser when prompted.",
     status: "available",
     version: "2.0.0",
-    size: "4.2 MB",
+    size: "4.6 MB",
     primaryLabel: "Download APK",
     href: `${RELEASE_BASE}/app-debug.apk`,
   },
