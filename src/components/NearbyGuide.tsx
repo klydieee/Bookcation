@@ -82,6 +82,8 @@ export function NearbyGuide({
     availableServices.find((entry) => entry.id === "restaurants") ??
     SERVICES[2]!;
   const liveLocation = Boolean(coordinates || manualLocation);
+  const hasSearchLocation = liveLocation || Boolean(city);
+  const searchRadius = currentService.id === "flights" ? "50 km" : "5 km";
   const placeForMap = selectedPlace
     ? { latitude: selectedPlace.latitude, longitude: selectedPlace.longitude }
     : mapCenter;
@@ -416,7 +418,9 @@ export function NearbyGuide({
         )}
         {!searching && !searchError && places.length === 0 && (
           <p className="mb-3 text-[0.875rem] text-[var(--color-ink-muted)]">
-            No {currentService.label.toLowerCase()} found within 5 km. Place coverage varies by area.
+            {hasSearchLocation
+              ? `No ${currentService.label.toLowerCase()} found within ${searchRadius}. Place coverage varies by area.`
+              : "Search a city or area, or use your current location to find nearby services."}
           </p>
         )}
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
