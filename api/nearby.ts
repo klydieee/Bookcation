@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import process from "node:process";
-import { handleNearbyRequest } from "../server/nearby";
+import { handleNearbyRequest } from "../server/nearby.js";
 
 export default async function handler(
   request: VercelRequest,
